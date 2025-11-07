@@ -4,6 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { TamaguiProvider } from 'tamagui';
+import { tamaguiConfig } from '../tamagui.config';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -13,6 +15,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
+    <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme!}>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -20,5 +23,6 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </TamaguiProvider>
   );
 }
