@@ -10,7 +10,7 @@ const HomeHeader = () => {
         Nice to see you {"user"}
       </Text>
 
-      <IconSymbol size={28} name="person.fill" color={"black"} />
+      <IconSymbol size={28} name="person.fill" color="$color.inverse" />
     </XStack>
   );
 };

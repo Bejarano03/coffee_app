@@ -45,7 +45,7 @@ const Index = () => {
 
   return (
     <ScrollView flex={1} paddingHorizontal="$4" paddingVertical="$3">
-      // Map over the data above for now
+      {/* map over the cards*/}
       <YStack space="$3">
         {promotions.map((promo) => (
           <PromotionCard 
