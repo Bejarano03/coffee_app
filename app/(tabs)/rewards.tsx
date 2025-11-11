@@ -1,10 +1,17 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import { ScrollView } from 'tamagui'
 
-export default function Rewards() {
+const Rewards = () => {
   return (
-    <View>
-      <Text>R</Text>
-    </View>
+    <ScrollView>
+      <View>
+        <Text>Rewards</Text>
+      </View>
+    </ScrollView>
   )
 }
+
+export default Rewards
+
+const styles = StyleSheet.create({})
