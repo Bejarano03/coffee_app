@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const tintColor = Colors[colorScheme ?? 'light'].tint;
 
   return (
     <Tabs
@@ -23,7 +24,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           headerShown: true,
-          headerTitle: () => <HomeHeader />,
+          headerTitle: () => <HomeHeader iconColor={tintColor} />,
           headerTitleContainerStyle: {
             left: 0,
             right: 0,

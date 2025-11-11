@@ -23,6 +23,8 @@ export default function PromotionCard({
       size="$6"
       width="100%"
       marginBottom="$3"
+      backgroundColor="$backgroundLighter"
+      elevation="$3"
       pressStyle={{ scale: 0.98 }} // Fun press effect
     >
       <XStack padding="$5" alignItems="center" gap="$5">

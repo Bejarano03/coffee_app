@@ -3,14 +3,18 @@ import { StyleSheet } from "react-native";
 import { Text, XStack } from "tamagui";
 import { IconSymbol } from "./ui/icon-symbol";
 
-const HomeHeader = () => {
+interface HomeHeaderProps {
+  iconColor: string;
+}
+
+const HomeHeader = ({ iconColor }: HomeHeaderProps) => {
   return (
     <XStack flex={1} alignItems="center" justifyContent="space-between">
       <Text fontSize="$7" fontWeight="700">
         Nice to see you {"user"}
       </Text>
 
-      <IconSymbol size={28} name="person.fill" color="$color.inverse" />
+      <IconSymbol size={28} name="person.fill" color={iconColor} />
     </XStack>
   );
 };
