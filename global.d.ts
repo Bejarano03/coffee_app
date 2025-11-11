@@ -1,0 +1,1 @@
+import './tamagui.config';

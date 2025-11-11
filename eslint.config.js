@@ -7,4 +7,13 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+
+  {
+    files: ['**/*, {js, jsx, ts, tsx}'],
+
+    rules: {
+      'react/no-unkown-property':'off',
+      'react/no-unstable-nested-components': 'off',
+    }
+  }
 ]);
