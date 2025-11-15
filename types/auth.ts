@@ -4,9 +4,9 @@ export interface AuthContextType {
     session: string | null;
     user: JwtPayload | null;
     isLoading: boolean,
-    signIn: (token: string) => Promise<void>;
+    signIn: (token: string, payload: JwtPayload) => Promise<void>;
     signOut: () => Promise<void>;
-    signUp: (token: string) => Promise<void>;
+    signUp: (token: string, payload: JwtPayload) => Promise<void>;
 }
 
 // Define the expected user data (based on JWT payload)
