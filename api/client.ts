@@ -16,6 +16,15 @@ interface LoginResponse {
     sub: number;
 }
 
+interface RegisterData {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    phone: string;
+}
+
 // Instance setup
 const API: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -48,8 +57,8 @@ export const AuthAPI = {
         return response.data;
     },
 
-    signup: async (email: string, password: string): Promise<LoginResponse> => {
-        const response = await API.post<LoginResponse>('/auth/register', { email, password });
+    signup: async (data: RegisterData): Promise<LoginResponse> => {
+        const response = await API.post<LoginResponse>('/auth/register', data);
         return response.data;
     },
 };
