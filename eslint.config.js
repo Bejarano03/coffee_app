@@ -9,7 +9,7 @@ module.exports = defineConfig([
   },
 
   {
-    files: ['**/*, {js, jsx, ts, tsx}'],
+    files: ['**/*.{js, jsx, ts, tsx}'],
 
     rules: {
       'react/no-unkown-property':'off',

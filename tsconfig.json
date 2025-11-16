@@ -13,5 +13,5 @@
     "expo-env.d.ts",
     "babel.config.js",
     "tamagui.config.ts"
-  ]
+, "metro.config.js"  ]
 }
