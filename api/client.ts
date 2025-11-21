@@ -35,7 +35,7 @@ export interface UserProfile {
 }
 
 export interface UpdateProfileData {
-    firsName?: string;
+    firstName?: string;
     lastName?: string;
     birthDate?: string;
     phone?: string;
@@ -57,7 +57,7 @@ API.interceptors.request.use(
         const token = await AsyncStorage.getItem('userToken');
         if (token) {
             // Inject bearer
-            config.headers.Authorization = `Bear ${token}`;
+            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
