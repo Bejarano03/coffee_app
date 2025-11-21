@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 
@@ -11,6 +11,10 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const tintColor = Colors[colorScheme ?? 'light'].tint;
+  const navigateToProfile = () => {
+      // Use router.push to go to the profile screen (which is at /profile)
+      router.push('/profile');
+  };
 
   return (
     <Tabs
@@ -24,7 +28,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           headerShown: true,
-          headerTitle: () => <HomeHeader iconColor={tintColor} />,
+          headerTitle: () => <HomeHeader iconColor={tintColor} onProfilePress={navigateToProfile} />,
           headerTitleContainerStyle: {
             left: 0,
             right: 0,

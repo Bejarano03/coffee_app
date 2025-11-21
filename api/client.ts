@@ -25,6 +25,22 @@ interface RegisterData {
     phone: string;
 }
 
+export interface UserProfile {
+    id: number;
+    email: string;
+    firstName: string;
+    lastName: string;
+    birthDate: string;
+    phone: string;
+}
+
+export interface UpdateProfileData {
+    firsName?: string;
+    lastName?: string;
+    birthDate?: string;
+    phone?: string;
+}
+
 // Instance setup
 const API: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -63,3 +79,17 @@ export const AuthAPI = {
     },
 };
 
+export const ProfileAPI = {
+    // Fetch user data of current logged in user
+    fetchProfile: async (): Promise<UserProfile> => {
+        // Assuming backend uses the token to identify the user
+        const response = await API.get<UserProfile>('/profile');
+        return response.data;
+    },
+
+    // Updates the profile details
+    updateProfile: async (data: UpdateProfileData): Promise<UserProfile> => {
+        const response = await API.patch<UserProfile>('/profile', data);
+        return response.data;
+    },
+}
