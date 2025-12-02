@@ -5,6 +5,14 @@ import React, { useCallback } from "react";
 import { RefreshControl, StyleSheet } from "react-native";
 import { Button, Image, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
 
+const milkLabels: Record<string, string> = {
+  WHOLE: "Whole milk",
+  HALF_AND_HALF: "Half & half",
+  ALMOND: "Almond milk",
+  OAT: "Oat milk",
+  SOY: "Soy milk",
+};
+
 const Cart = () => {
   const { items, subtotal, addItem, decrementItem, removeItem, clearCart, isSyncing, refreshCart } = useCart();
   const hasItems = items.length > 0;
@@ -22,40 +30,66 @@ const Cart = () => {
     >
       {hasItems ? (
         <YStack space="$4">
-          {items.map(({ item, quantity }) => (
-            <YStack key={item.id} space="$3" borderWidth={1} borderColor="$borderColor" borderRadius="$5" padding="$3">
-              <XStack gap="$3">
-                <Image source={getMenuImageSource(item.imageKey)} alt={item.name} width={72} height={72} borderRadius="$3" />
-                <YStack flex={1} space="$1">
-                  <Text fontSize="$5" fontWeight="700">
-                    {item.name}
-                  </Text>
-                  <Text fontSize="$3" color="$color" opacity={0.75}>
-                    {item.description}
-                  </Text>
-                  <Text fontWeight="700">${(item.price * quantity).toFixed(2)}</Text>
-                </YStack>
-              </XStack>
-
-              <XStack justifyContent="space-between" alignItems="center">
-                <XStack alignItems="center" gap="$2">
-                  <Button size="$2" circular onPress={() => void decrementItem(item.id)}>
-                    -
-                  </Button>
-                  <Text fontSize="$5" fontWeight="700">
-                    {quantity}
-                  </Text>
-                  <Button size="$2" circular onPress={() => void addItem(item)}>
-                    +
-                  </Button>
+          {items.map(({ id: cartItemId, item, quantity, milkOption, espressoShots, flavorName, flavorPumps }) => {
+            const isCoffee = item.category === "COFFEE";
+            return (
+              <YStack key={cartItemId} space="$3" borderWidth={1} borderColor="$borderColor" borderRadius="$5" padding="$3">
+                <XStack gap="$3">
+                  <Image source={getMenuImageSource(item.imageKey)} alt={item.name} width={72} height={72} borderRadius="$3" />
+                  <YStack flex={1} space="$1">
+                    <Text fontSize="$5" fontWeight="700">
+                      {item.name}
+                    </Text>
+                    <Text fontSize="$3" color="$color" opacity={0.75}>
+                      {item.description}
+                    </Text>
+                    {isCoffee && (
+                      <>
+                        <Text fontSize="$3" color="$color9">
+                          {milkLabels[milkOption] ?? "House milk"} · {espressoShots} shot{espressoShots === 1 ? "" : "s"}
+                        </Text>
+                        {flavorName ? (
+                          <Text fontSize="$3" color="$color9">
+                            {flavorName} · {flavorPumps ?? 0} pump{(flavorPumps ?? 0) === 1 ? "" : "s"}
+                          </Text>
+                        ) : null}
+                      </>
+                    )}
+                    <Text fontWeight="700">${(item.price * quantity).toFixed(2)}</Text>
+                  </YStack>
                 </XStack>
 
-                <Button size="$2" variant="outlined" onPress={() => void removeItem(item.id)}>
-                  Remove
-                </Button>
-              </XStack>
-            </YStack>
-          ))}
+                <XStack justifyContent="space-between" alignItems="center">
+                  <XStack alignItems="center" gap="$2">
+                    <Button size="$2" circular onPress={() => void decrementItem(cartItemId)}>
+                      -
+                    </Button>
+                    <Text fontSize="$5" fontWeight="700">
+                      {quantity}
+                    </Text>
+                    <Button
+                      size="$2"
+                      circular
+                      onPress={() =>
+                        void addItem(item, {
+                          quantity: 1,
+                          customizations: isCoffee
+                            ? { milkOption, espressoShots, flavorName: flavorName ?? undefined, flavorPumps }
+                            : undefined,
+                        })
+                      }
+                    >
+                      +
+                    </Button>
+                  </XStack>
+
+                  <Button size="$2" variant="outlined" onPress={() => void removeItem(cartItemId)}>
+                    Remove
+                  </Button>
+                </XStack>
+              </YStack>
+            );
+          })}
 
           <Separator />
 

@@ -1,23 +1,29 @@
-import { CartAPI, CartApiItem, normalizeMenuItem } from '@/api/client';
+import { CartAPI, CartApiItem, CartCustomizationPayload, MilkOption, normalizeMenuItem } from '@/api/client';
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { MenuItem } from '@/types/menu';
 import { useAuth } from './AuthContext';
 
 type CartLine = {
+  id: number;
   item: MenuItem;
   quantity: number;
+  milkOption: MilkOption;
+  espressoShots: number;
+  flavorName?: string | null;
+  flavorPumps?: number | null;
 };
 
 type CartContextValue = {
   items: CartLine[];
   itemsById: Record<number, CartLine>;
+  quantityByMenuItem: Record<number, number>;
   subtotal: number;
   totalQuantity: number;
   isSyncing: boolean;
   refreshCart: () => Promise<void>;
-  addItem: (item: MenuItem, quantityDelta?: number) => Promise<void>;
-  decrementItem: (itemId: number) => Promise<void>;
-  removeItem: (itemId: number) => Promise<void>;
+  addItem: (item: MenuItem, payload?: { quantity?: number; customizations?: CartCustomizationPayload }) => Promise<void>;
+  decrementItem: (cartItemId: number) => Promise<void>;
+  removeItem: (cartItemId: number) => Promise<void>;
   clearCart: () => Promise<void>;
 };
 
@@ -31,9 +37,14 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
   const applyResponse = useCallback((items: CartApiItem[]) => {
     setCart(
       items.reduce<Record<number, CartLine>>((acc, line) => {
-        acc[line.menuItemId] = {
+        acc[line.id] = {
+          id: line.id,
           item: normalizeMenuItem(line.menuItem),
           quantity: line.quantity,
+          milkOption: line.milkOption,
+          espressoShots: line.espressoShots,
+          flavorName: line.flavorName,
+          flavorPumps: line.flavorPumps,
         };
         return acc;
       }, {})
@@ -77,10 +88,10 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
   }, [session]);
 
   const addItem = useCallback(
-    async (item: MenuItem, quantityDelta = 1) => {
+    async (item: MenuItem, payload?: { quantity?: number; customizations?: CartCustomizationPayload }) => {
       ensureAuthenticated();
       try {
-        const data = await CartAPI.addItem(item.id, quantityDelta);
+        const data = await CartAPI.addItem(item.id, payload?.quantity, payload?.customizations);
         applyResponse(data);
       } catch (error) {
         console.error('Failed to add item to cart', error);
@@ -91,8 +102,8 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
   );
 
   const decrementItem = useCallback(
-    async (itemId: number) => {
-      const existing = cart[itemId];
+    async (cartItemId: number) => {
+      const existing = cart[cartItemId];
       if (!existing) {
         return;
       }
@@ -101,8 +112,8 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
       try {
         const data =
           existing.quantity <= 1
-            ? await CartAPI.removeItem(itemId)
-            : await CartAPI.updateItem(itemId, existing.quantity - 1);
+            ? await CartAPI.removeItem(cartItemId)
+            : await CartAPI.updateItem(cartItemId, existing.quantity - 1);
         applyResponse(data);
       } catch (error) {
         console.error('Failed to decrement cart item', error);
@@ -113,10 +124,10 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
   );
 
   const removeItem = useCallback(
-    async (itemId: number) => {
+    async (cartItemId: number) => {
       ensureAuthenticated();
       try {
-        const data = await CartAPI.removeItem(itemId);
+        const data = await CartAPI.removeItem(cartItemId);
         applyResponse(data);
       } catch (error) {
         console.error('Failed to remove cart item', error);
@@ -150,10 +161,18 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
     );
   }, [items]);
 
+  const quantityByMenuItem = useMemo(() => {
+    return items.reduce<Record<number, number>>((acc, line) => {
+      acc[line.item.id] = (acc[line.item.id] ?? 0) + line.quantity;
+      return acc;
+    }, {});
+  }, [items]);
+
   const value = useMemo(
     () => ({
       items,
       itemsById: cart,
+      quantityByMenuItem,
       subtotal,
       totalQuantity,
       isSyncing,
@@ -163,7 +182,7 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
       removeItem,
       clearCart,
     }),
-    [items, cart, subtotal, totalQuantity, isSyncing, refreshCart, addItem, decrementItem, removeItem, clearCart]
+    [items, cart, quantityByMenuItem, subtotal, totalQuantity, isSyncing, refreshCart, addItem, decrementItem, removeItem, clearCart]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

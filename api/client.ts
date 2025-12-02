@@ -54,12 +54,74 @@ export interface MenuApiItem {
     isAvailable?: boolean;
 }
 
+export type MilkOption = 'WHOLE' | 'HALF_AND_HALF' | 'ALMOND' | 'OAT' | 'SOY';
+
 export interface CartApiItem {
     id: number;
     menuItemId: number;
     quantity: number;
     notes?: string | null;
+    milkOption: MilkOption;
+    espressoShots: number;
+    flavorName?: string | null;
+    flavorPumps?: number | null;
     menuItem: MenuApiItem;
+}
+
+export interface CartCustomizationPayload {
+    milkOption?: MilkOption;
+    espressoShots?: number;
+    flavorName?: string;
+    flavorPumps?: number;
+}
+
+export type RewardTransactionType = 'EARN' | 'REDEEM' | 'ADJUSTMENT';
+export type GiftCardTransactionType = 'REFILL' | 'PURCHASE' | 'ADJUSTMENT';
+
+export interface RewardTier {
+    name: string;
+    threshold: number;
+    tagline: string;
+}
+
+export interface RewardTierInfo {
+    current: RewardTier;
+    next: RewardTier | null;
+    percentToNext: number;
+    pointsUntilNext: number;
+}
+
+export interface PunchCardSummary {
+    pointsTowardsNextFreeDrink: number;
+    freeDrinkThreshold: number;
+    freeCoffeesAvailable: number;
+}
+
+export interface RewardTransactionDto {
+    id: number;
+    points: number;
+    reason: string;
+    type: RewardTransactionType;
+    createdAt: string;
+}
+
+export interface GiftCardTransactionDto {
+    id: number;
+    amount: number;
+    type: GiftCardTransactionType;
+    note?: string | null;
+    createdAt: string;
+}
+
+export interface RewardSummary {
+    rewardPoints: number;
+    lifetimeRewardPoints: number;
+    tier: RewardTierInfo;
+    punchCard: PunchCardSummary;
+    freeCoffeeCredits: number;
+    giftCardBalance: number;
+    recentRewardTransactions: RewardTransactionDto[];
+    recentGiftCardTransactions: GiftCardTransactionDto[];
 }
 
 // Instance setup
@@ -140,25 +202,41 @@ export const CartAPI = {
         const response = await API.get<CartApiItem[]>('/cart');
         return response.data;
     },
-    addItem: async (menuItemId: number, quantity?: number): Promise<CartApiItem[]> => {
+    addItem: async (
+        menuItemId: number,
+        quantity?: number,
+        customizations?: CartCustomizationPayload
+    ): Promise<CartApiItem[]> => {
         const response = await API.post<CartApiItem[]>('/cart/items', {
             menuItemId,
             quantity,
+            ...customizations,
         });
         return response.data;
     },
-    updateItem: async (menuItemId: number, quantity: number): Promise<CartApiItem[]> => {
-        const response = await API.patch<CartApiItem[]>(`/cart/items/${menuItemId}`, {
+    updateItem: async (cartItemId: number, quantity: number): Promise<CartApiItem[]> => {
+        const response = await API.patch<CartApiItem[]>(`/cart/items/${cartItemId}`, {
             quantity,
         });
         return response.data;
     },
-    removeItem: async (menuItemId: number): Promise<CartApiItem[]> => {
-        const response = await API.delete<CartApiItem[]>(`/cart/items/${menuItemId}`);
+    removeItem: async (cartItemId: number): Promise<CartApiItem[]> => {
+        const response = await API.delete<CartApiItem[]>(`/cart/items/${cartItemId}`);
         return response.data;
     },
     clearCart: async (): Promise<CartApiItem[]> => {
         const response = await API.delete<CartApiItem[]>('/cart');
+        return response.data;
+    },
+};
+
+export const RewardsAPI = {
+    getSummary: async (): Promise<RewardSummary> => {
+        const response = await API.get<RewardSummary>('/rewards');
+        return response.data;
+    },
+    refillGiftCard: async (amount: number): Promise<RewardSummary> => {
+        const response = await API.post<RewardSummary>('/rewards/refill', { amount });
         return response.data;
     },
 };

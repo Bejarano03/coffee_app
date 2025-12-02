@@ -7,6 +7,12 @@ import { Button, H1, Input, Separator, Text, XStack, YStack } from 'tamagui';
 import { AuthAPI } from '@/api/client';
 import { useAuth } from '@/context/AuthContext';
 import { JwtPayload } from '@/types/auth';
+import {
+  formatBirthDateInput,
+  formatPhoneInput,
+  isCompleteBirthDate,
+  normalizePhoneNumber,
+} from '@/utils/formatters';
 
 export default function SignUpScreen() {
   // --- State for all fields ---
@@ -16,7 +22,7 @@ export default function SignUpScreen() {
   
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState(''); 
+  const [birthDate, setBirthDate] = useState('');
   const [phone, setPhone] = useState('');
   
   const [loading, setLoading] = useState(false);
@@ -37,6 +43,19 @@ export default function SignUpScreen() {
       return;
     }
 
+    if (!isCompleteBirthDate(birthDate)) {
+      Alert.alert('Error', 'Birthdate must follow MM-DD-YYYY.');
+      setLoading(false);
+      return;
+    }
+
+    const normalizedPhone = normalizePhoneNumber(phone);
+    if (normalizedPhone.length !== 10) {
+      Alert.alert('Error', 'Phone number must contain 10 digits.');
+      setLoading(false);
+      return;
+    }
+
     try {
       // 1. Call the centralized API function with all registration data
       const { access_token, email: userEmail, sub: userId } = await AuthAPI.signup({
@@ -45,7 +64,7 @@ export default function SignUpScreen() {
         firstName,
         lastName,
         birthDate,
-        phone,
+        phone: normalizedPhone,
       });
       
       if (access_token) {
@@ -101,9 +120,9 @@ export default function SignUpScreen() {
         
         {/* Birthdate Input */}
         <Input
-          placeholder="Birthdate (YYYY-MM-DD)"
+          placeholder="Birthdate (MM-DD-YYYY)"
           value={birthDate}
-          onChangeText={setBirthDate}
+          onChangeText={(value) => setBirthDate(formatBirthDateInput(value))}
           keyboardType="numbers-and-punctuation"
           size="$4"
         />
@@ -112,7 +131,7 @@ export default function SignUpScreen() {
         <Input
           placeholder="Phone Number"
           value={phone}
-          onChangeText={setPhone}
+          onChangeText={(value) => setPhone(formatPhoneInput(value))}
           keyboardType="phone-pad"
           size="$4"
         />

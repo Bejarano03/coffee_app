@@ -1,5 +1,6 @@
 import { LogOut, Save } from '@tamagui/lucide-icons';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AlertDialog,
   Button,
@@ -15,9 +16,19 @@ import {
 
 import { ProfileAPI, UpdateProfileData, UserProfile } from '@/api/client';
 import { useAuth } from '@/context/AuthContext';
+import {
+  formatBirthDateInput,
+  formatPhoneInput,
+  isCompleteBirthDate,
+  normalizeBirthDateFromServer,
+  normalizePhoneNumber,
+} from '@/utils/formatters';
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
+  const insets = useSafeAreaInsets();
+  const topPadding = Math.max(insets.top, 24);
+  const bottomPadding = Math.max(insets.bottom, 24);
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,18 +38,31 @@ export default function ProfileScreen() {
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
 
+  const prepareProfileForUi = useCallback((userProfile: UserProfile): UserProfile => {
+    return {
+      ...userProfile,
+      birthDate: normalizeBirthDateFromServer(userProfile.birthDate),
+      phone: formatPhoneInput(userProfile.phone),
+    };
+  }, []);
+
+  const applyProfileState = useCallback((userProfile: UserProfile) => {
+    const prepared = prepareProfileForUi(userProfile);
+    setProfile(prepared);
+    setUpdateData({
+      firstName: prepared.firstName,
+      lastName: prepared.lastName,
+      birthDate: prepared.birthDate,
+      phone: prepared.phone,
+    });
+  }, [prepareProfileForUi]);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setLoading(true);
         const userProfile = await ProfileAPI.fetchProfile();
-        setProfile(userProfile);
-        setUpdateData({
-          firstName: userProfile.firstName,
-          lastName: userProfile.lastName,
-          birthDate: userProfile.birthDate,
-          phone: userProfile.phone,
-        });
+        applyProfileState(userProfile);
       } catch (error) {
         console.error('Failed to fetch profile:', error);
         setAlertTitle('Error');
@@ -50,16 +74,37 @@ export default function ProfileScreen() {
     };
 
     fetchProfile();
-  }, []);
+  }, [applyProfileState]);
 
   const handleUpdate = async () => {
     setIsSaving(true);
+
+    if (updateData.birthDate && !isCompleteBirthDate(updateData.birthDate)) {
+      setAlertTitle('Invalid date');
+      setAlertMessage('Birthdate must follow MM-DD-YYYY.');
+      setShowAlert(true);
+      setIsSaving(false);
+      return;
+    }
+
+    const normalizedPhoneInput = updateData.phone ? normalizePhoneNumber(updateData.phone) : '';
+    const profilePhoneDigits = profile?.phone ? normalizePhoneNumber(profile.phone) : '';
+
+    if (updateData.phone && normalizedPhoneInput.length !== 10) {
+      setAlertTitle('Invalid phone');
+      setAlertMessage('Phone number must include 10 digits.');
+      setShowAlert(true);
+      setIsSaving(false);
+      return;
+    }
 
     const dataToSend: UpdateProfileData = {};
     if (updateData.firstName !== profile?.firstName) dataToSend.firstName = updateData.firstName;
     if (updateData.lastName !== profile?.lastName) dataToSend.lastName = updateData.lastName;
     if (updateData.birthDate !== profile?.birthDate) dataToSend.birthDate = updateData.birthDate;
-    if (updateData.phone !== profile?.phone) dataToSend.phone = updateData.phone;
+    if (normalizedPhoneInput && normalizedPhoneInput !== profilePhoneDigits) {
+      dataToSend.phone = normalizedPhoneInput;
+    }
 
     if (Object.keys(dataToSend).length === 0) {
       setAlertTitle('No Change');
@@ -71,7 +116,7 @@ export default function ProfileScreen() {
 
     try {
       const updatedProfile = await ProfileAPI.updateProfile(dataToSend);
-      setProfile(updatedProfile);
+      applyProfileState(updatedProfile);
       setAlertTitle('Success');
       setAlertMessage('Profile updated successfully!');
       setShowAlert(true);
@@ -87,6 +132,14 @@ export default function ProfileScreen() {
 
   const handleChange = (key: keyof UpdateProfileData, value: string) => {
     setUpdateData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleBirthDateInput = (value: string) => {
+    setUpdateData((prev) => ({ ...prev, birthDate: formatBirthDateInput(value) }));
+  };
+
+  const handlePhoneInput = (value: string) => {
+    setUpdateData((prev) => ({ ...prev, phone: formatPhoneInput(value) }));
   };
 
   const displayName = useMemo(() => {
@@ -130,9 +183,21 @@ export default function ProfileScreen() {
   }
 
   return (
-    <YStack flex={1} backgroundColor="$background">
-      <ScrollView flex={1} backgroundColor="$background">
-        <YStack flex={1} padding="$4" space="$4" width="100%" maxWidth={700} marginHorizontal="auto">
+    <YStack flex={1} backgroundColor="$background" paddingTop={topPadding} paddingBottom={bottomPadding}>
+      <ScrollView
+        flex={1}
+        backgroundColor="$background"
+        contentContainerStyle={{ paddingBottom: bottomPadding }}
+        showsVerticalScrollIndicator={false}
+      >
+        <YStack
+          flex={1}
+          padding="$4"
+          space="$4"
+          width="100%"
+          maxWidth={700}
+          marginHorizontal="auto"
+        >
           <Card padding="$4" backgroundColor="$backgroundStrong" bordered elevate>
             <XStack alignItems="center" gap="$4">
               <YStack
@@ -199,13 +264,14 @@ export default function ProfileScreen() {
 
               <YStack space="$1">
                 <Text fontSize="$2" color="$color9">
-                  Birth Date
+                  Birth Date (MM-DD-YYYY)
                 </Text>
                 <Input
-                  placeholder="YYYY-MM-DD"
+                  placeholder="MM-DD-YYYY"
                   value={updateData.birthDate}
-                  onChangeText={(text) => handleChange('birthDate', text)}
+                  onChangeText={handleBirthDateInput}
                   size="$4"
+                  keyboardType="numbers-and-punctuation"
                 />
               </YStack>
 
@@ -214,9 +280,9 @@ export default function ProfileScreen() {
                   Phone Number
                 </Text>
                 <Input
-                  placeholder="Phone"
+                  placeholder="(555) 555-1234"
                   value={updateData.phone}
-                  onChangeText={(text) => handleChange('phone', text)}
+                  onChangeText={handlePhoneInput}
                   size="$4"
                   keyboardType="phone-pad"
                 />
