@@ -1,4 +1,5 @@
 import { AuthProvider } from '@/context/AuthContext';
+import { CartProvider } from '@/context/CartContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { PortalProvider } from '@tamagui/portal';
@@ -20,9 +21,11 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <StatusBar style="auto" />
         <PortalProvider>
-        <AuthProvider>
-          <Slot />
-        </AuthProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Slot />
+            </CartProvider>
+          </AuthProvider>
         </PortalProvider>
       </ThemeProvider>
     </TamaguiProvider>

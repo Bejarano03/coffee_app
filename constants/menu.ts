@@ -1,0 +1,82 @@
+import { MenuItem, MenuCategory } from '@/types/menu';
+
+export const MENU_CATEGORIES: { id: MenuCategory; label: string }[] = [
+  { id: 'coffee', label: 'Coffees' },
+  { id: 'pastry', label: 'Pastries' },
+];
+
+export const MENU_ITEMS: MenuItem[] = [
+  {
+    id: 'espresso-classic',
+    name: 'Classic Espresso',
+    description: 'Double-shot espresso pulled from freshly roasted beans for a bold start.',
+    price: 3.5,
+    category: 'coffee',
+    image: 'https://images.unsplash.com/photo-1432107294467-65779ce616ad?auto=format&fit=crop&w=400&q=80',
+    tags: ['2oz', 'Bold'],
+  },
+  {
+    id: 'iced-oat-latte',
+    name: 'Iced Oat Latte',
+    description: 'House espresso shaken with vanilla syrup and chilled oat milk over ice.',
+    price: 5.75,
+    category: 'coffee',
+    image: 'https://images.unsplash.com/photo-1513442542250-854d436a73f2?auto=format&fit=crop&w=400&q=80',
+    tags: ['Non dairy', '12oz'],
+  },
+  {
+    id: 'maple-cold-foam',
+    name: 'Maple Cold Foam',
+    description: 'Slow-steeped cold brew finished with maple sweet cream cold foam.',
+    price: 6.5,
+    category: 'coffee',
+    image: 'https://images.unsplash.com/photo-1464306076886-da185f6a9d12?auto=format&fit=crop&w=400&q=80',
+    tags: ['Seasonal'],
+  },
+  {
+    id: 'mocha-delight',
+    name: 'Mocha Delight',
+    description: 'Silky chocolate sauce, steamed milk, and espresso finished with cocoa.',
+    price: 5.95,
+    category: 'coffee',
+    image: 'https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=400&q=80',
+    tags: ['Customer favorite'],
+  },
+  {
+    id: 'lemon-poppy-muffin',
+    name: 'Lemon Poppy Muffin',
+    description: 'Bakery muffin baked daily with candied lemon peel and crunchy sugar top.',
+    price: 3.95,
+    category: 'pastry',
+    image: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=400&q=80',
+    tags: ['Vegetarian'],
+  },
+  {
+    id: 'almond-croissant',
+    name: 'Almond Croissant',
+    description: 'Buttery laminated dough filled with almond creme and toasted flakes.',
+    price: 4.75,
+    category: 'pastry',
+    image: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=400&q=80',
+    tags: ['Best seller'],
+  },
+  {
+    id: 'blueberry-scone',
+    name: 'Blueberry Scone',
+    description: 'Hand-folded scone studded with blueberries and finished with a vanilla glaze.',
+    price: 3.25,
+    category: 'pastry',
+    image: 'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f5ab?auto=format&fit=crop&w=400&q=80',
+    tags: ['Pairs with tea'],
+  },
+  {
+    id: 'cinnamon-roll',
+    name: 'Warm Cinnamon Roll',
+    description: 'Fluffy roll baked with cinnamon sugar and slathered in cream cheese icing.',
+    price: 4.25,
+    category: 'pastry',
+    image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=400&q=80',
+    tags: ['Served warm'],
+    isAvailable: true,
+  },
+];
