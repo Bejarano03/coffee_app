@@ -6,13 +6,16 @@ import { IconSymbol } from "./ui/icon-symbol";
 interface HomeHeaderProps {
   iconColor: string;
   onProfilePress: () => void;
+  userName?: string;
 }
 
-const HomeHeader = ({ iconColor, onProfilePress }: HomeHeaderProps) => {
+const HomeHeader = ({ iconColor, onProfilePress, userName }: HomeHeaderProps) => {
+  const greetingName = userName?.trim() || "friend";
+
   return (
     <XStack flex={1} alignItems="center" justifyContent="space-between">
       <Text fontSize="$7" fontWeight="700">
-        Nice to see you {"user"}
+        Nice to see you {greetingName}
       </Text>
 
       <YStack

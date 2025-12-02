@@ -101,7 +101,7 @@ const Menu = () => {
       <YStack space="$4" flex={1}>
         <YStack space="$1">
           <Text fontSize="$8" fontWeight="800">
-            Our menu
+            Coffee App Menu
           </Text>
           <Text fontSize="$4" color="$color" opacity={0.75}>
             Browse coffees and pastries from the bar. Tap “Add to cart” to save your favorites.
@@ -136,7 +136,9 @@ const Menu = () => {
 
       {totalQuantity > 0 && (
         <Button marginTop="$4" size="$4" onPress={() => router.push("/(tabs)/cart")}>
-          View cart · {totalQuantity} {totalQuantity === 1 ? "item" : "items"} · ${subtotal.toFixed(2)}
+          <Text fontSize="$5" fontWeight="700" color="$color">
+            View cart · {totalQuantity} {totalQuantity === 1 ? "item" : "items"} · ${subtotal.toFixed(2)}
+          </Text>
         </Button>
       )}
     </ScrollView>
