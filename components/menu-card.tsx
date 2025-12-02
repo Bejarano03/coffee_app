@@ -1,4 +1,5 @@
 import { MenuItem } from "@/types/menu";
+import { getMenuImageSource } from "@/assets/menu";
 import { Button, Card, Image, Text, XStack, YStack } from "tamagui";
 
 type MenuCardProps = {
@@ -23,13 +24,7 @@ const MenuCard = ({ item, quantity, onAdd, onIncrement, onDecrement }: MenuCardP
       opacity={isUnavailable ? 0.6 : 1}
     >
       <XStack padding="$4" gap="$4">
-        <Image
-          source={{ uri: item.image }}
-          alt={item.name}
-          width={96}
-          height={96}
-          borderRadius="$4"
-        />
+        <Image source={getMenuImageSource(item.imageKey)} alt={item.name} width={96} height={96} borderRadius="$4" />
 
         <YStack flex={1} space="$2">
           <XStack alignItems="center" justifyContent="space-between">

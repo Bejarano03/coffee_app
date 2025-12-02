@@ -1,21 +1,31 @@
+import { getMenuImageSource } from "@/assets/menu";
 import { useCart } from "@/context/CartContext";
 import { router } from "expo-router";
-import React from "react";
-import { StyleSheet } from "react-native";
+import React, { useCallback } from "react";
+import { RefreshControl, StyleSheet } from "react-native";
 import { Button, Image, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
 
 const Cart = () => {
-  const { items, subtotal, addItem, decrementItem, removeItem, clearCart } = useCart();
+  const { items, subtotal, addItem, decrementItem, removeItem, clearCart, isSyncing, refreshCart } = useCart();
   const hasItems = items.length > 0;
 
+  const handleRefresh = useCallback(() => {
+    refreshCart().catch((error) => console.error("Failed to refresh cart", error));
+  }, [refreshCart]);
+
   return (
-    <ScrollView flex={1} padding="$4" contentContainerStyle={styles.container}>
+    <ScrollView
+      flex={1}
+      padding="$4"
+      contentContainerStyle={styles.container}
+      refreshControl={<RefreshControl refreshing={isSyncing} onRefresh={handleRefresh} />}
+    >
       {hasItems ? (
         <YStack space="$4">
           {items.map(({ item, quantity }) => (
             <YStack key={item.id} space="$3" borderWidth={1} borderColor="$borderColor" borderRadius="$5" padding="$3">
               <XStack gap="$3">
-                <Image source={{ uri: item.image }} alt={item.name} width={72} height={72} borderRadius="$3" />
+                <Image source={getMenuImageSource(item.imageKey)} alt={item.name} width={72} height={72} borderRadius="$3" />
                 <YStack flex={1} space="$1">
                   <Text fontSize="$5" fontWeight="700">
                     {item.name}
@@ -29,18 +39,18 @@ const Cart = () => {
 
               <XStack justifyContent="space-between" alignItems="center">
                 <XStack alignItems="center" gap="$2">
-                  <Button size="$2" circular onPress={() => decrementItem(item.id)}>
+                  <Button size="$2" circular onPress={() => void decrementItem(item.id)}>
                     -
                   </Button>
                   <Text fontSize="$5" fontWeight="700">
                     {quantity}
                   </Text>
-                  <Button size="$2" circular onPress={() => addItem(item)}>
+                  <Button size="$2" circular onPress={() => void addItem(item)}>
                     +
                   </Button>
                 </XStack>
 
-                <Button size="$2" variant="outlined" onPress={() => removeItem(item.id)}>
+                <Button size="$2" variant="outlined" onPress={() => void removeItem(item.id)}>
                   Remove
                 </Button>
               </XStack>
@@ -58,7 +68,7 @@ const Cart = () => {
             </Text>
           </XStack>
 
-          <Button size="$4" onPress={clearCart}>
+          <Button size="$4" onPress={() => void clearCart()}>
             Checkout (mock)
           </Button>
         </YStack>

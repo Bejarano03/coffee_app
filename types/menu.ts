@@ -1,12 +1,12 @@
-export type MenuCategory = 'coffee' | 'pastry';
+export type MenuCategory = 'COFFEE' | 'PASTRY';
 
 export interface MenuItem {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
   category: MenuCategory;
-  image: string;
+  imageKey: string;
   tags?: string[];
   isAvailable?: boolean;
 }
