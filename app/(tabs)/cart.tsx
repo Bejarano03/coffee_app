@@ -1,8 +1,10 @@
 import { getMenuImageSource } from "@/assets/menu";
+import { PaymentsAPI } from "@/api/client";
 import { useCart } from "@/context/CartContext";
+import { useStripe } from "@stripe/stripe-react-native";
 import { router } from "expo-router";
-import React, { useCallback } from "react";
-import { RefreshControl, StyleSheet } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Alert, RefreshControl, StyleSheet } from "react-native";
 import { Button, Image, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
 
 const milkLabels: Record<string, string> = {
@@ -15,11 +17,50 @@ const milkLabels: Record<string, string> = {
 
 const Cart = () => {
   const { items, subtotal, addItem, decrementItem, removeItem, clearCart, isSyncing, refreshCart } = useCart();
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const hasItems = items.length > 0;
 
   const handleRefresh = useCallback(() => {
     refreshCart().catch((error) => console.error("Failed to refresh cart", error));
   }, [refreshCart]);
+
+  const handleCheckout = useCallback(async () => {
+    if (!hasItems || subtotal <= 0) {
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      const { clientSecret } = await PaymentsAPI.createPaymentIntent();
+
+      const initResult = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: "Coffee Club",
+      });
+
+      if (initResult.error) {
+        Alert.alert("Checkout unavailable", initResult.error.message ?? "Unable to initialize payment sheet.");
+        return;
+      }
+
+      const paymentResult = await presentPaymentSheet();
+      if (paymentResult.error) {
+        if (paymentResult.error.code !== 'Canceled') {
+          Alert.alert("Payment failed", paymentResult.error.message ?? "Please try again.");
+        }
+        return;
+      }
+
+      await clearCart();
+      Alert.alert("Order placed", "Thanks! Your payment was successful.");
+    } catch (error: any) {
+      const message = error?.response?.data?.message ?? error?.message ?? 'Something went wrong while starting checkout.';
+      Alert.alert('Checkout failed', message);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  }, [hasItems, subtotal, initPaymentSheet, presentPaymentSheet, clearCart]);
 
   return (
     <ScrollView
@@ -102,8 +143,8 @@ const Cart = () => {
             </Text>
           </XStack>
 
-          <Button size="$4" onPress={() => void clearCart()}>
-            Checkout (mock)
+          <Button size="$4" onPress={() => void handleCheckout()} disabled={isCheckingOut}>
+            {isCheckingOut ? 'Processing…' : 'Checkout'}
           </Button>
         </YStack>
       ) : (

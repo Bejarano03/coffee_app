@@ -250,6 +250,16 @@ export const CartAPI = {
     },
 };
 
+export const PaymentsAPI = {
+    createPaymentIntent: async (): Promise<{ clientSecret: string; amount: number; currency: string }> => {
+        const response = await API.post<{ clientSecret: string; amount: number; currency: string }>(
+            '/payments/create-intent',
+            {}
+        );
+        return response.data;
+    },
+};
+
 export const RewardsAPI = {
     getSummary: async (): Promise<RewardSummary> => {
         const response = await API.get<RewardSummary>('/rewards');
