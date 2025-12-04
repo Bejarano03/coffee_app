@@ -254,6 +254,8 @@ const Menu = () => {
             })}
           </XStack>
 
+          <Separator />
+
           {error ? (
             <Text color="$red10" fontSize="$3">
               {error}

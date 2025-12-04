@@ -23,17 +23,27 @@ export default function RootLayout() {
     console.warn('EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set. Checkout will be disabled.');
   }
 
-  const lightBackground = colorScheme === 'dark' ? undefined : '#F2F6FC';
-  const tamaguiTheme = colorScheme === 'dark' ? 'dark' : 'blueLight';
+  const lightBackground = '#F2F6FC';
+  const darkBackground = '#050A18';
+  const rootBackground = colorScheme === 'dark' ? darkBackground : lightBackground;
+  const tamaguiTheme = colorScheme === 'dark' ? 'night' : 'blueLight';
   const navigationTheme =
     colorScheme === 'dark'
-      ? DarkTheme
+      ? {
+          ...DarkTheme,
+          colors: {
+            ...DarkTheme.colors,
+            background: darkBackground,
+            card: darkBackground,
+            text: '#F7FAFF',
+          },
+        }
       : {
           ...DefaultTheme,
           colors: {
             ...DefaultTheme.colors,
-            background: '#F2F6FC',
-            card: '#F2F6FC',
+            background: lightBackground,
+            card: lightBackground,
           },
         };
 
@@ -45,8 +55,8 @@ export default function RootLayout() {
     >
       <TamaguiProvider config={tamaguiConfig} defaultTheme={tamaguiTheme}>
         <ThemeProvider value={navigationTheme}>
-          <StatusBar style="auto" />
-          <View style={{ flex: 1, backgroundColor: lightBackground }}>
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <View style={{ flex: 1, backgroundColor: rootBackground }}>
             <PortalProvider>
               <AuthProvider>
                 <CartProvider>

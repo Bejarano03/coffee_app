@@ -1729,13 +1729,30 @@ var blueLightTheme = {
   backgroundHover: "#E9F0FB",
   backgroundPress: "#DDE5F4",
   backgroundFocus: "#CFDAEE",
-  backgroundStrong: "#E6EEF9"
+  backgroundStrong: "#E6EEF9",
+  borderColor: "#CBD5F5",
+  color: "#101828",
+  colorHover: "#0F172A",
+  colorPress: "#0B1120"
+};
+var nightTheme = {
+  ...defaultConfig.themes.dark,
+  background: "#0B111F",
+  backgroundHover: "#11192B",
+  backgroundPress: "#0F1624",
+  backgroundFocus: "#142038",
+  backgroundStrong: "#121A2C",
+  borderColor: "#1F2A3F",
+  color: "#F7FAFF",
+  colorHover: "#FFFFFF",
+  colorPress: "#E7ECFF"
 };
 var tamaguiConfig = createTamagui({
   ...defaultConfig,
   themes: {
     ...defaultConfig.themes,
-    blueLight: blueLightTheme
+    blueLight: blueLightTheme,
+    night: nightTheme
   }
 });
 var tamagui_config_default = tamaguiConfig;
