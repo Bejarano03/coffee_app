@@ -75,6 +75,7 @@ export interface CartApiItem {
     espressoShots: number;
     flavorName?: string | null;
     flavorPumps?: number | null;
+    isFreeDrink: boolean;
     menuItem: MenuApiItem;
 }
 
@@ -240,6 +241,12 @@ export const CartAPI = {
         });
         return response.data;
     },
+    toggleFreeDrink: async (cartItemId: number, isFreeDrink: boolean): Promise<CartApiItem[]> => {
+        const response = await API.patch<CartApiItem[]>(`/cart/items/${cartItemId}/free-drink`, {
+            isFreeDrink,
+        });
+        return response.data;
+    },
     removeItem: async (cartItemId: number): Promise<CartApiItem[]> => {
         const response = await API.delete<CartApiItem[]>(`/cart/items/${cartItemId}`);
         return response.data;
@@ -264,6 +271,20 @@ export const PaymentsAPI = {
         const response = await API.post<{ clientSecret: string; paymentIntentId: string; amountCents: number; currency: string }>(
             '/payments/gift-card-intent',
             { amount }
+        );
+        return response.data;
+    },
+    payWithGiftCard: async (): Promise<{ orderId: number; amountCents: number; remainingBalanceCents: number; currency: string }> => {
+        const response = await API.post<{ orderId: number; amountCents: number; remainingBalanceCents: number; currency: string }>(
+            '/payments/pay-with-gift-card',
+            {}
+        );
+        return response.data;
+    },
+    completeFreeOrder: async (): Promise<{ orderId: number; amountCents: number; currency: string }> => {
+        const response = await API.post<{ orderId: number; amountCents: number; currency: string }>(
+            '/payments/free-order',
+            {}
         );
         return response.data;
     },

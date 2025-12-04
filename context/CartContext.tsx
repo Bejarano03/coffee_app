@@ -11,6 +11,7 @@ type CartLine = {
   espressoShots: number;
   flavorName?: string | null;
   flavorPumps?: number | null;
+  isFreeDrink: boolean;
 };
 
 type CartContextValue = {
@@ -25,6 +26,7 @@ type CartContextValue = {
   decrementItem: (cartItemId: number) => Promise<void>;
   removeItem: (cartItemId: number) => Promise<void>;
   clearCart: () => Promise<void>;
+  toggleFreeDrink: (cartItemId: number, isFreeDrink: boolean) => Promise<void>;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -45,6 +47,7 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
           espressoShots: line.espressoShots,
           flavorName: line.flavorName,
           flavorPumps: line.flavorPumps,
+          isFreeDrink: line.isFreeDrink,
         };
         return acc;
       }, {})
@@ -148,12 +151,28 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
     }
   }, [applyResponse, ensureAuthenticated]);
 
+  const toggleFreeDrink = useCallback(
+    async (cartItemId: number, isFreeDrink: boolean) => {
+      ensureAuthenticated();
+      try {
+        const data = await CartAPI.toggleFreeDrink(cartItemId, isFreeDrink);
+        applyResponse(data);
+      } catch (error) {
+        console.error('Failed to toggle free drink redemption', error);
+        throw error;
+      }
+    },
+    [applyResponse, ensureAuthenticated]
+  );
+
   const items = useMemo(() => Object.values(cart), [cart]);
 
   const { subtotal, totalQuantity } = useMemo(() => {
     return items.reduce(
       (totals, line) => {
-        totals.subtotal += line.item.price * line.quantity;
+        if (!line.isFreeDrink) {
+          totals.subtotal += line.item.price * line.quantity;
+        }
         totals.totalQuantity += line.quantity;
         return totals;
       },
@@ -181,8 +200,9 @@ export const CartProvider = ({ children }: PropsWithChildren) => {
       decrementItem,
       removeItem,
       clearCart,
+      toggleFreeDrink,
     }),
-    [items, cart, quantityByMenuItem, subtotal, totalQuantity, isSyncing, refreshCart, addItem, decrementItem, removeItem, clearCart]
+    [items, cart, quantityByMenuItem, subtotal, totalQuantity, isSyncing, refreshCart, addItem, decrementItem, removeItem, clearCart, toggleFreeDrink]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
