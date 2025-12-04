@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 
@@ -21,6 +22,59 @@ interface UseWeatherResult {
 
 const WEATHER_ENDPOINT = 'https://api.openweathermap.org/data/2.5/weather';
 const WEATHER_UNITS: WeatherSnapshot['units'] = 'imperial';
+const WEATHER_CACHE_KEY = 'weather:lastSnapshot';
+const WEATHER_CACHE_TTL_MS = 15 * 60 * 1000;
+
+const isCacheStale = (snapshot: WeatherSnapshot | null) => {
+  if (!snapshot) {
+    return true;
+  }
+
+  const age = Date.now() - snapshot.updatedAt.getTime();
+  return age > WEATHER_CACHE_TTL_MS;
+};
+
+async function readWeatherCache(): Promise<WeatherSnapshot | null> {
+  try {
+    const raw = await AsyncStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    const updatedAt = parsed?.updatedAt ? new Date(parsed.updatedAt) : null;
+
+    if (!updatedAt || Number.isNaN(updatedAt.getTime())) {
+      return null;
+    }
+
+    return {
+      locationName: parsed.locationName,
+      description: parsed.description,
+      temperature: parsed.temperature,
+      feelsLike: parsed.feelsLike,
+      humidity: parsed.humidity,
+      icon: parsed.icon,
+      updatedAt,
+      units: parsed.units ?? WEATHER_UNITS,
+    };
+  } catch (error) {
+    console.warn('Failed to read cached weather data', error);
+    return null;
+  }
+}
+
+async function writeWeatherCache(snapshot: WeatherSnapshot) {
+  try {
+    await AsyncStorage.setItem(
+      WEATHER_CACHE_KEY,
+      JSON.stringify({
+        ...snapshot,
+        updatedAt: snapshot.updatedAt.toISOString(),
+      }),
+    );
+  } catch (error) {
+    console.warn('Failed to persist weather cache', error);
+  }
+}
 
 const parseFallbackCoords = (): Location.LocationObjectCoords | null => {
   const fallbackRaw = process.env.EXPO_PUBLIC_WEATHER_FALLBACK_COORDS;
@@ -146,6 +200,7 @@ export const useWeather = (): UseWeatherResult => {
       if (!isMounted.current) return;
 
       setWeather(snapshot);
+      await writeWeatherCache(snapshot);
     } catch (err) {
       if (!isMounted.current) return;
 
@@ -160,9 +215,41 @@ export const useWeather = (): UseWeatherResult => {
   }, []);
 
   useEffect(() => {
-    refresh().catch(() => {
-      // errors handled in refresh state; no-op to satisfy TS
+    let cancelled = false;
+
+    const hydrateFromCache = async () => {
+      if (cancelled || !isMounted.current) return;
+
+      setLoading(true);
+      const cached = await readWeatherCache();
+
+      if (!isMounted.current || cancelled) {
+        return;
+      }
+
+      if (cached) {
+        setWeather(cached);
+      }
+
+      if (isCacheStale(cached)) {
+        await refresh();
+      } else {
+        setLoading(false);
+      }
+    };
+
+    hydrateFromCache().catch((error) => {
+      if (cancelled || !isMounted.current) {
+        return;
+      }
+      const message = error instanceof Error ? error.message : 'Unknown error while loading weather.';
+      setError(message);
+      setLoading(false);
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [refresh]);
 
   return useMemo(
