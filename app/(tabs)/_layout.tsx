@@ -69,8 +69,6 @@ export default function TabLayout() {
             right: 0,
             width: '100%',
             paddingHorizontal: 0,
-          },
-          headerStyle: {
             paddingRight: Platform.select({ ios: 0, android: 16 }),
           },
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
