@@ -15,6 +15,7 @@ interface LoginResponse {
     access_token: string;
     email: string;
     sub: number;
+    requiresPasswordReset?: boolean;
 }
 
 interface RegisterData {
@@ -24,6 +25,10 @@ interface RegisterData {
     lastName: string;
     birthDate: string;
     phone: string;
+}
+
+interface PasswordResetRequestPayload {
+    email: string;
 }
 
 export interface UserProfile {
@@ -40,6 +45,11 @@ export interface UpdateProfileData {
     lastName?: string;
     birthDate?: string;
     phone?: string;
+}
+
+export interface UpdatePasswordPayload {
+    currentPassword: string;
+    newPassword: string;
 }
 
 export interface MenuApiItem {
@@ -160,6 +170,11 @@ export const AuthAPI = {
         const response = await API.post<LoginResponse>('/auth/register', data);
         return response.data;
     },
+
+    requestPasswordReset: async (email: string) => {
+        const response = await API.post<{ message: string }>('/auth/password/reset-request', { email } as PasswordResetRequestPayload);
+        return response.data;
+    },
 };
 
 export const ProfileAPI = {
@@ -173,6 +188,11 @@ export const ProfileAPI = {
     // Updates the profile details
     updateProfile: async (data: UpdateProfileData): Promise<UserProfile> => {
         const response = await API.patch<UserProfile>('/profile', data);
+        return response.data;
+    },
+
+    updatePassword: async (data: UpdatePasswordPayload): Promise<{ message: string }> => {
+        const response = await API.patch<{ message: string }>('/profile/password', data);
         return response.data;
     },
 };

@@ -6,41 +6,29 @@ import { ScrollView, YStack } from "tamagui";
 const Index = () => {
   const promotions = [
     {
-      id: 1,
-      title: "Spiced Pumpkin Latter",
-      description: "Our signature seasonal favorite is back! A rich blend of espresso, steamed milk, and classic pumpkin spice, topped with whipped cream.",
-      imageSource: { uri: 'https://picsum.photos/120/120?image=10'}
+      id: 'pumpkin-spice',
+      title: "Spiced Pumpkin Latte",
+      description: "Our signature seasonal favorite is back with pumpkin spice, whipped cream, and a drizzle of caramel.",
+      imageSource: require('@/assets/images/Pumpkin-Spice-Latte.png'),
     },
     {
-      id: 2,
+      id: 'winter-mocha',
       title: "Winter Peppermint Mocha",
-      description: "A decadent mix of dark chocolate, cool peppermint, and bold espresso to warm your spirits.",
-      imageSource: { uri: 'https://picsum.photos/120/120?image=11'}
+      description: "Dark chocolate, cool peppermint, and bold espresso crafted for cozy afternoons.",
+      imageSource: require('@/assets/images/winter-peppermint-mocha.png'),
     },
     {
-      id: 3,
+      id: 'maple-cold-foam',
+      title: "Maple Cold Foam Cold Brew",
+      description: "Slow-steeped cold brew crowned with house-made maple cold foam.",
+      imageSource: require('@/assets/images/maple-cold-foam.png'),
+    },
+    {
+      id: 'gift-card-bonus',
       title: "Holiday Gift Card Bonus",
-      description: "Buy a \$50 gift card and receive a free \$5 credit for your next purchase. Perfect stocking stuffers!",
-      imageSource: { uri: 'https://picsum.photos/120/120?image=12' },
+      description: "Buy a $50 gift card and receive a free $5 credit for your next purchase.",
+      imageSource: require('@/assets/images/gift-card.png'),
     },
-    {
-      id: 4,
-      title: "Spiced Pumpkin Latter",
-      description: "Our signature seasonal favorite is back! A rich blend of espresso, steamed milk, and classic pumpkin spice, topped with whipped cream.",
-      imageSource: { uri: 'https://picsum.photos/120/120?image=10'}
-    },
-    {
-      id: 5,
-      title: "Winter Peppermint Mocha",
-      description: "A decadent mix of dark chocolate, cool peppermint, and bold espresso to warm your spirits.",
-      imageSource: { uri: 'https://picsum.photos/120/120?image=11'}
-    },
-    {
-      id: 6,
-      title: "Holiday Gift Card Bonus",
-      description: "Buy a \$50 gift card and receive a free \$5 credit for your next purchase. Perfect stocking stuffers!",
-      imageSource: { uri: 'https://picsum.photos/120/120?image=12' },
-    }
   ];
 
   return (

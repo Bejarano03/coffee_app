@@ -18,6 +18,21 @@ export default function AuthLaytout() {
           title: "Create Account",
         }}
       />
+      <Stack.Screen
+        name="forgot-password"
+        options={{
+          headerShown: true,
+          title: "Reset password",
+        }}
+      />
+      <Stack.Screen
+        name="reset-password"
+        options={{
+          headerShown: true,
+          title: "Change password",
+          gestureEnabled: false,
+        }}
+      />
     </Stack>
   );
 }

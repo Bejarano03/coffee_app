@@ -1,12 +1,12 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { ImageSourcePropType, StyleSheet } from "react-native";
 import { Card, Image, SizeTokens, Text, XStack, YStack } from "tamagui";
 
 // Definitions expected by the component
 interface PromotionCardProps {
   title: string;
   description: string;
-  imageSource: { uri: string } | number;
+  imageSource: ImageSourcePropType;
 }
 
 // Fixed size for the image in the card

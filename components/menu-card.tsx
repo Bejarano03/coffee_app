@@ -5,11 +5,12 @@ import { Button, Card, Image, ScrollView, Text, XStack, YStack } from "tamagui";
 type MenuCardProps = {
   item: MenuItem;
   quantity?: number;
-  onPress: () => void;
+  onActionPress: () => void;
+  onCardPress?: () => void;
   isCustomizable?: boolean;
 };
 
-const MenuCard = ({ item, quantity = 0, onPress, isCustomizable = true }: MenuCardProps) => {
+const MenuCard = ({ item, quantity = 0, onActionPress, onCardPress, isCustomizable = true }: MenuCardProps) => {
   const isUnavailable = item.isAvailable === false;
   const hasQuantity = quantity > 0;
   const helperText = isCustomizable
@@ -18,8 +19,9 @@ const MenuCard = ({ item, quantity = 0, onPress, isCustomizable = true }: MenuCa
       : 'Customize and add to cart'
     : hasQuantity
       ? `In cart: ${quantity}`
-      : 'Tap to add to cart';
+      : 'Use Add to cart button';
   const buttonLabel = isCustomizable ? (isUnavailable ? 'Sold out' : 'Customize') : isUnavailable ? 'Sold out' : 'Add to cart';
+  const cardPressHandler = onCardPress;
 
   return (
     <Card
@@ -30,7 +32,7 @@ const MenuCard = ({ item, quantity = 0, onPress, isCustomizable = true }: MenuCa
       backgroundColor="$background"
       pressStyle={{ scale: 0.99 }}
       opacity={isUnavailable ? 0.6 : 1}
-      onPress={isUnavailable ? undefined : onPress}
+      onPress={isUnavailable || !cardPressHandler ? undefined : cardPressHandler}
     >
       <XStack padding="$4" gap="$4">
         <Image source={getMenuImageSource(item.imageKey)} alt={item.name} width={96} height={96} borderRadius="$4" />
@@ -76,7 +78,7 @@ const MenuCard = ({ item, quantity = 0, onPress, isCustomizable = true }: MenuCa
             </Text>
             <Button
               size="$3"
-              onPress={onPress}
+              onPress={onActionPress}
               disabled={isUnavailable}
               opacity={isUnavailable ? 0.7 : 1}
               variant="outlined"

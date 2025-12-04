@@ -37,6 +37,8 @@ export default function ProfileScreen() {
   const [showAlert, setShowAlert] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const prepareProfileForUi = useCallback((userProfile: UserProfile): UserProfile => {
     return {
@@ -140,6 +142,46 @@ export default function ProfileScreen() {
 
   const handlePhoneInput = (value: string) => {
     setUpdateData((prev) => ({ ...prev, phone: formatPhoneInput(value) }));
+  };
+
+  const handlePasswordInput = (key: 'currentPassword' | 'newPassword' | 'confirmPassword', value: string) => {
+    setPasswordForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handlePasswordUpdate = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      setAlertTitle('Missing info');
+      setAlertMessage('Please fill in all password fields.');
+      setShowAlert(true);
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setAlertTitle('Mismatch');
+      setAlertMessage('New password and confirmation must match.');
+      setShowAlert(true);
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      await ProfileAPI.updatePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setAlertTitle('Password updated');
+      setAlertMessage('Your password was updated successfully.');
+      setShowAlert(true);
+    } catch (error) {
+      console.error('Failed to update password:', error);
+      const message = (error as any)?.response?.data?.message || 'Could not update password. Double-check your current password.';
+      setAlertTitle('Error');
+      setAlertMessage(message);
+      setShowAlert(true);
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   const displayName = useMemo(() => {
@@ -306,6 +348,62 @@ export default function ProfileScreen() {
                 Log out
               </Button>
             </XStack>
+          </Card>
+
+          <Card padding="$4" backgroundColor="$backgroundStrong" space="$4" bordered elevate>
+            <Text fontSize="$5" fontWeight="700">
+              Security
+            </Text>
+            <Separator />
+
+            <YStack space="$3">
+              <YStack space="$1">
+                <Text fontSize="$2" color="$color9">
+                  Current password
+                </Text>
+                <Input
+                  placeholder="Current password"
+                  value={passwordForm.currentPassword}
+                  onChangeText={(value) => handlePasswordInput('currentPassword', value)}
+                  secureTextEntry
+                />
+              </YStack>
+
+              <YStack space="$1">
+                <Text fontSize="$2" color="$color9">
+                  New password
+                </Text>
+                <Input
+                  placeholder="New password"
+                  value={passwordForm.newPassword}
+                  onChangeText={(value) => handlePasswordInput('newPassword', value)}
+                  secureTextEntry
+                />
+              </YStack>
+
+              <YStack space="$1">
+                <Text fontSize="$2" color="$color9">
+                  Confirm new password
+                </Text>
+                <Input
+                  placeholder="Confirm new password"
+                  value={passwordForm.confirmPassword}
+                  onChangeText={(value) => handlePasswordInput('confirmPassword', value)}
+                  secureTextEntry
+                />
+              </YStack>
+            </YStack>
+
+            <Button
+              theme="active"
+              iconAfter={Save}
+              onPress={handlePasswordUpdate}
+              disabled={isUpdatingPassword}
+              loading={isUpdatingPassword}
+              size="$4"
+            >
+              {isUpdatingPassword ? 'Updating...' : 'Update password'}
+            </Button>
           </Card>
         </YStack>
       </ScrollView>

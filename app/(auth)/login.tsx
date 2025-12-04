@@ -18,6 +18,8 @@ export default function LoginScreen() {
 
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password.");
+      setLoading(false);
+      return;
     }
 
     try {
@@ -25,12 +27,12 @@ export default function LoginScreen() {
         access_token,
         email: userEmail,
         sub: userId,
+        requiresPasswordReset,
       } = await AuthAPI.login(email, password);
 
       if (access_token) {
         const userPayload: JwtPayload = { email: userEmail, sub: userId };
-
-        await signIn(access_token, userPayload);
+        await signIn(access_token, userPayload, { requiresPasswordReset });
       } else {
         Alert.alert("Login Failed", "No access token received.");
       }
@@ -91,6 +93,14 @@ export default function LoginScreen() {
           secureTextEntry
           size="$4"
         />
+
+        <Button
+          variant="outlined"
+          size="$2"
+          onPress={() => router.push('/(auth)/forgot-password')}
+        >
+          Forgot password?
+        </Button>
 
         <Button
           theme="active"

@@ -5,7 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { MenuCategory, MenuItem } from "@/types/menu";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, RefreshControl, StyleSheet } from "react-native";
+import { ActivityIndicator, Alert, BackHandler, RefreshControl, StyleSheet } from "react-native";
 import { Button, Input, ScrollView, Separator, Sheet, Text, XStack, YStack } from "tamagui";
 
 const Menu = () => {
@@ -79,22 +79,28 @@ const Menu = () => {
     fetchMenu(true).catch(() => {});
   }, [fetchMenu]);
 
-  const handleMenuPress = useCallback(
+  const handleCustomizePress = useCallback(
     (item: MenuItem) => {
-      if (item.category === "COFFEE") {
-        setSelectedItem(item);
-        setCustomization({ ...defaultCustomization });
-        setQuantity(1);
-        setCustomizationOpen(true);
+      if (item.category !== "COFFEE") {
         return;
       }
 
+      setSelectedItem(item);
+      setCustomization({ ...defaultCustomization });
+      setQuantity(1);
+      setCustomizationOpen(true);
+    },
+    [defaultCustomization]
+  );
+
+  const handleAddReadyItem = useCallback(
+    (item: MenuItem) => {
       addItem(item).catch((error) => {
         console.error("Failed to add pastry", error);
         Alert.alert("Unable to add item", "Please try again.");
       });
     },
-    [addItem, defaultCustomization]
+    [addItem]
   );
 
   const renderContent = useMemo(() => {
@@ -124,18 +130,24 @@ const Menu = () => {
 
     return (
       <YStack space="$3">
-        {items.map((item) => (
-          <MenuCard
-            key={item.id}
-            item={item}
-            quantity={quantityByMenuItem[item.id]}
-            onPress={() => handleMenuPress(item)}
-            isCustomizable={item.category === "COFFEE"}
-          />
-        ))}
+        {items.map((item) => {
+          const isCoffee = item.category === "COFFEE";
+          const actionHandler = isCoffee ? () => handleCustomizePress(item) : () => handleAddReadyItem(item);
+
+          return (
+            <MenuCard
+              key={item.id}
+              item={item}
+              quantity={quantityByMenuItem[item.id]}
+              onCardPress={isCoffee ? actionHandler : undefined}
+              onActionPress={actionHandler}
+              isCustomizable={isCoffee}
+            />
+          );
+        })}
       </YStack>
     );
-  }, [handleMenuPress, isLoading, items, quantityByMenuItem]);
+  }, [handleAddReadyItem, handleCustomizePress, isLoading, items, quantityByMenuItem]);
 
   const handleAdjustShots = useCallback((delta: number) => {
     setCustomization((prev) => {
@@ -165,6 +177,19 @@ const Menu = () => {
     },
     [resetCustomization]
   );
+
+  useEffect(() => {
+    if (!customizationOpen) {
+      return;
+    }
+
+    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+      handleCloseSheet(false);
+      return true;
+    });
+
+    return () => subscription.remove();
+  }, [customizationOpen, handleCloseSheet]);
 
   const handleSubmit = useCallback(async () => {
     if (!selectedItem) {
