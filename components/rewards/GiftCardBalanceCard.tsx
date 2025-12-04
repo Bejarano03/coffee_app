@@ -31,7 +31,7 @@ export const GiftCardBalanceCard = ({ balance, isProcessing, onPressReload }: Pr
             loading={isProcessing}
             alignSelf="flex-start"
           >
-            Refill (mock Stripe)
+            Refill
           </Button>
         </XStack>
       </YStack>

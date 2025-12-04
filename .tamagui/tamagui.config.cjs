@@ -1723,7 +1723,21 @@ Expected a subset of: ${expected.join(", ")}
 };
 
 // tamagui.config.ts
-var tamaguiConfig = createTamagui(defaultConfig);
+var blueLightTheme = {
+  ...defaultConfig.themes.light,
+  background: "#F2F6FC",
+  backgroundHover: "#E9F0FB",
+  backgroundPress: "#DDE5F4",
+  backgroundFocus: "#CFDAEE",
+  backgroundStrong: "#E6EEF9"
+};
+var tamaguiConfig = createTamagui({
+  ...defaultConfig,
+  themes: {
+    ...defaultConfig.themes,
+    blueLight: blueLightTheme
+  }
+});
 var tamagui_config_default = tamaguiConfig;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

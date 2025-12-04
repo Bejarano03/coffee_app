@@ -258,6 +258,15 @@ export const PaymentsAPI = {
         );
         return response.data;
     },
+    createGiftCardReloadIntent: async (
+        amount: number,
+    ): Promise<{ clientSecret: string; paymentIntentId: string; amountCents: number; currency: string }> => {
+        const response = await API.post<{ clientSecret: string; paymentIntentId: string; amountCents: number; currency: string }>(
+            '/payments/gift-card-intent',
+            { amount }
+        );
+        return response.data;
+    },
 };
 
 export const RewardsAPI = {
@@ -265,8 +274,8 @@ export const RewardsAPI = {
         const response = await API.get<RewardSummary>('/rewards');
         return response.data;
     },
-    refillGiftCard: async (amount: number): Promise<RewardSummary> => {
-        const response = await API.post<RewardSummary>('/rewards/refill', { amount });
+    refillGiftCard: async (amount: number, paymentIntentId: string): Promise<RewardSummary> => {
+        const response = await API.post<RewardSummary>('/rewards/refill', { amount, paymentIntentId });
         return response.data;
     },
 };

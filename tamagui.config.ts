@@ -1,11 +1,26 @@
-import { defaultConfig } from '@tamagui/config/v4'
-import { createTamagui } from 'tamagui'
+import { defaultConfig } from '@tamagui/config/v4';
+import { createTamagui } from 'tamagui';
 
-export const tamaguiConfig = createTamagui(defaultConfig)
+const blueLightTheme = {
+  ...defaultConfig.themes.light,
+  background: '#F2F6FC',
+  backgroundHover: '#E9F0FB',
+  backgroundPress: '#DDE5F4',
+  backgroundFocus: '#CFDAEE',
+  backgroundStrong: '#E6EEF9',
+};
 
-export default tamaguiConfig
+export const tamaguiConfig = createTamagui({
+  ...defaultConfig,
+  themes: {
+    ...defaultConfig.themes,
+    blueLight: blueLightTheme,
+  },
+});
 
-export type Conf = typeof tamaguiConfig
+export default tamaguiConfig;
+
+export type Conf = typeof tamaguiConfig;
 
 declare module 'tamagui' {
   interface TamaguiCustomConfig extends Conf {}

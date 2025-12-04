@@ -12,10 +12,11 @@ import {
   YStack,
 } from 'tamagui';
 
-import { RewardSummary, RewardsAPI } from '@/api/client';
+import { PaymentsAPI, RewardSummary, RewardsAPI } from '@/api/client';
 import { GiftCardBalanceCard } from '@/components/rewards/GiftCardBalanceCard';
 import { RewardProgressCard } from '@/components/rewards/RewardProgressCard';
 import { TransactionsList } from '@/components/rewards/TransactionsList';
+import { useStripe } from '@stripe/stripe-react-native';
 
 const quickAmounts = [15, 25, 50, 100];
 
@@ -27,6 +28,7 @@ const Rewards = () => {
   const [isRefilling, setIsRefilling] = useState(false);
   const [showRefillDialog, setShowRefillDialog] = useState(false);
   const [feedback, setFeedback] = useState({ open: false, title: '', message: '' });
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
   const showFeedback = useCallback((title: string, message: string) => {
     setFeedback({ open: true, title, message });
@@ -73,17 +75,42 @@ const Rewards = () => {
 
     setIsRefilling(true);
     try {
-      const data = await RewardsAPI.refillGiftCard(parsedAmount);
+      const { clientSecret, paymentIntentId, amountCents } = await PaymentsAPI.createGiftCardReloadIntent(parsedAmount);
+
+      const initResult = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        merchantDisplayName: 'Coffee Club',
+      });
+
+      if (initResult.error) {
+        showFeedback('Stripe unavailable', initResult.error.message ?? 'Unable to initialize the payment sheet right now.');
+        return;
+      }
+
+      const paymentResult = await presentPaymentSheet();
+      if (paymentResult.error) {
+        if (paymentResult.error.code !== 'Canceled') {
+          showFeedback('Payment failed', paymentResult.error.message ?? 'Stripe was unable to complete the reload.');
+        }
+        return;
+      }
+
+      const normalizedAmount = amountCents / 100;
+      const data = await RewardsAPI.refillGiftCard(normalizedAmount, paymentIntentId);
       setSummary(data);
       setShowRefillDialog(false);
-      showFeedback('Balance updated', `Successfully reloaded $${parsedAmount.toFixed(2)} via mock Stripe checkout.`);
+      showFeedback('Balance updated', `Successfully reloaded $${normalizedAmount.toFixed(2)} via Stripe.`);
     } catch (error) {
       console.error('Failed to reload gift card', error);
-      showFeedback('Reload failed', 'We were unable to mock the Stripe payment. Please try again.');
+      const message =
+        (error as any)?.response?.data?.message ??
+        (error as Error)?.message ??
+        'We were unable to complete the Stripe reload. Please try again.';
+      showFeedback('Reload failed', message);
     } finally {
       setIsRefilling(false);
     }
-  }, [refillAmount, showFeedback]);
+  }, [refillAmount, initPaymentSheet, presentPaymentSheet, showFeedback]);
 
   const quickActionButtons = useMemo(
     () =>
@@ -149,7 +176,7 @@ const Rewards = () => {
             <Separator />
             <Text color="$color9">
               Every coffee or pastry purchase earns <Text fontWeight="700">1 punch</Text>; collect {summary.punchCard.freeDrinkThreshold} punches to unlock a free coffee.
-              Gift card reloads add <Text fontWeight="700">2 pts</Text> per dollar as a bonus until the live Stripe flow is connected.
+              Gift card reloads add <Text fontWeight="700">2 pts</Text> per dollar as a bonus every time you reload via Stripe.
             </Text>
           </YStack>
         </YStack>
@@ -163,7 +190,7 @@ const Rewards = () => {
               <Text fontSize="$6" fontWeight="700">
                 Refill gift card
               </Text>
-              <Text color="$color9">Choose an amount to send through the mock Stripe checkout.</Text>
+              <Text color="$color9">Choose an amount to send through the Stripe checkout.</Text>
               <XStack gap="$2" flexWrap="wrap">
                 {quickActionButtons}
               </XStack>
@@ -186,7 +213,7 @@ const Rewards = () => {
                   disabled={isRefilling}
                   loading={isRefilling}
                 >
-                  Pay with Stripe (mock)
+                  Pay with Stripe
                 </Button>
               </XStack>
             </YStack>

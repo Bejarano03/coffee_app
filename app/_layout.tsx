@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import 'react-native-reanimated';
 import { TamaguiProvider } from 'tamagui';
+import { View } from 'react-native';
 import { tamaguiConfig } from '../tamagui.config';
 
 export const unstable_settings = {
@@ -15,12 +16,26 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const publishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
   if (!publishableKey) {
     console.warn('EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set. Checkout will be disabled.');
   }
+
+  const lightBackground = colorScheme === 'dark' ? undefined : '#F2F6FC';
+  const tamaguiTheme = colorScheme === 'dark' ? 'dark' : 'blueLight';
+  const navigationTheme =
+    colorScheme === 'dark'
+      ? DarkTheme
+      : {
+          ...DefaultTheme,
+          colors: {
+            ...DefaultTheme.colors,
+            background: '#F2F6FC',
+            card: '#F2F6FC',
+          },
+        };
 
   return (
     <StripeProvider
@@ -28,16 +43,18 @@ export default function RootLayout() {
       merchantIdentifier="merchant.com.coffeeclub.app"
       urlScheme="coffeeclub"
     >
-      <TamaguiProvider config={tamaguiConfig} defaultTheme={colorScheme!}>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <TamaguiProvider config={tamaguiConfig} defaultTheme={tamaguiTheme}>
+        <ThemeProvider value={navigationTheme}>
           <StatusBar style="auto" />
-          <PortalProvider>
-            <AuthProvider>
-              <CartProvider>
-                <Slot />
-              </CartProvider>
-            </AuthProvider>
-          </PortalProvider>
+          <View style={{ flex: 1, backgroundColor: lightBackground }}>
+            <PortalProvider>
+              <AuthProvider>
+                <CartProvider>
+                  <Slot />
+                </CartProvider>
+              </AuthProvider>
+            </PortalProvider>
+          </View>
         </ThemeProvider>
       </TamaguiProvider>
     </StripeProvider>
