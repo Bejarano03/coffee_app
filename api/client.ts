@@ -258,8 +258,8 @@ export const CartAPI = {
 };
 
 export const PaymentsAPI = {
-    createPaymentIntent: async (): Promise<{ clientSecret: string; amount: number; currency: string }> => {
-        const response = await API.post<{ clientSecret: string; amount: number; currency: string }>(
+    createPaymentIntent: async (): Promise<{ clientSecret: string; paymentIntentId: string; amount: number; currency: string }> => {
+        const response = await API.post<{ clientSecret: string; paymentIntentId: string; amount: number; currency: string }>(
             '/payments/create-intent',
             {}
         );
@@ -285,6 +285,13 @@ export const PaymentsAPI = {
         const response = await API.post<{ orderId: number; amountCents: number; currency: string }>(
             '/payments/free-order',
             {}
+        );
+        return response.data;
+    },
+    completeCardPayment: async (paymentIntentId: string): Promise<{ orderId: number; amountCents: number; currency: string }> => {
+        const response = await API.post<{ orderId: number; amountCents: number; currency: string }>(
+            '/payments/complete-card-payment',
+            { paymentIntentId }
         );
         return response.data;
     },

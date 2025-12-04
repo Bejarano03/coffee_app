@@ -29,6 +29,7 @@ const Cart = () => {
   const [reloadAmount, setReloadAmount] = useState("10");
   const [isReloadingBalance, setIsReloadingBalance] = useState(false);
   const [isRedeemingFreeDrink, setIsRedeemingFreeDrink] = useState(false);
+  const [activePaymentIntentId, setActivePaymentIntentId] = useState<string | null>(null);
   const hasItems = items.length > 0;
   const giftCardBalance = rewardsSummary?.giftCardBalance ?? null;
   const availableFreeDrinks = rewardsSummary?.freeCoffeeCredits ?? 0;
@@ -90,7 +91,8 @@ const Cart = () => {
         return;
       }
 
-      const { clientSecret } = await PaymentsAPI.createPaymentIntent();
+      const { clientSecret, paymentIntentId } = await PaymentsAPI.createPaymentIntent();
+      setActivePaymentIntentId(paymentIntentId);
 
       const initResult = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
@@ -110,6 +112,15 @@ const Cart = () => {
         return;
       }
 
+      if (paymentIntentId) {
+        try {
+          await PaymentsAPI.completeCardPayment(paymentIntentId);
+        } catch (error: any) {
+          console.warn('Failed to finalize Stripe order', error);
+        }
+      }
+
+      setActivePaymentIntentId(null);
       await clearCart();
       await loadRewardsSummary();
       Alert.alert("Order placed", "Thanks! Your payment was successful.");
@@ -118,8 +129,11 @@ const Cart = () => {
       Alert.alert('Checkout failed', message);
     } finally {
       setIsCheckingOut(false);
+      if (activePaymentIntentId) {
+        setActivePaymentIntentId(null);
+      }
     }
-  }, [hasItems, subtotal, initPaymentSheet, presentPaymentSheet, clearCart, loadRewardsSummary]);
+  }, [hasItems, subtotal, initPaymentSheet, presentPaymentSheet, clearCart, loadRewardsSummary, activePaymentIntentId]);
 
   const handlePayWithGiftCard = useCallback(async () => {
     if (!hasItems) {

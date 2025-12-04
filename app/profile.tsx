@@ -1,5 +1,6 @@
-import { LogOut, Save } from '@tamagui/lucide-icons';
+import { ArrowLeft, LogOut, Save } from '@tamagui/lucide-icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AlertDialog,
@@ -14,6 +15,7 @@ import {
   YStack,
 } from 'tamagui';
 
+import { router, useNavigation } from 'expo-router';
 import { ProfileAPI, UpdateProfileData, UserProfile } from '@/api/client';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -26,6 +28,7 @@ import {
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const topPadding = Math.max(insets.top, 24);
   const bottomPadding = Math.max(insets.bottom, 24);
@@ -226,6 +229,23 @@ export default function ProfileScreen() {
 
   return (
     <YStack flex={1} backgroundColor="$background" paddingTop={topPadding} paddingBottom={bottomPadding}>
+      <XStack alignItems="center" paddingHorizontal="$4" marginBottom="$2">
+        <Pressable
+          onPress={() => {
+            if (typeof navigation.canGoBack === 'function' && navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              router.replace('/(tabs)');
+            }
+          }}
+          hitSlop={8}
+        >
+          <XStack alignItems="center" gap="$2">
+            <ArrowLeft size={20} />
+            <Text fontWeight="700">Back</Text>
+          </XStack>
+        </Pressable>
+      </XStack>
       <ScrollView
         flex={1}
         backgroundColor="$background"
