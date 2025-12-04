@@ -1,9 +1,11 @@
 import PromotionCard from "@/components/promotion-card";
+import { WeatherBanner } from "@/components/weather-banner";
+import { useWeather } from "@/hooks/use-weather";
 import React from "react";
-import { StyleSheet } from "react-native";
 import { ScrollView, YStack } from "tamagui";
 
 const Index = () => {
+  const { weather, error, loading, refresh } = useWeather();
   const promotions = [
     {
       id: 'pumpkin-spice',
@@ -32,9 +34,15 @@ const Index = () => {
   ];
 
   return (
-    <ScrollView flex={1} paddingHorizontal="$4" paddingVertical="$3">
+    <ScrollView
+      flex={1}
+      paddingHorizontal="$4"
+      paddingVertical="$3"
+      contentContainerStyle={{ paddingBottom: 120 }}
+    >
       {/* map over the cards*/}
       <YStack space="$3">
+        <WeatherBanner weather={weather} error={error} loading={loading} onRetry={refresh} />
         {promotions.map((promo) => (
           <PromotionCard 
             key={promo.id}
@@ -49,5 +57,3 @@ const Index = () => {
 };
 
 export default Index;
-
-const styles = StyleSheet.create({});

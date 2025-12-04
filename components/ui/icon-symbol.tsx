@@ -22,6 +22,8 @@ const MAPPING = {
   'star.fill': 'star',
   'cart.fill':'shopping-cart',
   'person.fill': 'person',
+  'exclamationmark.triangle.fill': 'warning',
+  'cloud.fill': 'cloud',
 } as IconMapping;
 
 /**
