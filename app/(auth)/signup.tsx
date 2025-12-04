@@ -94,9 +94,9 @@ export default function SignUpScreen() {
         shadowColor="$shadowColor" 
         shadowRadius={10}
       >
-        
-        <H1 textAlign="center" color="$color">Create Account</H1>
-        <Text textAlign="center" color="$colorAcyclic">Join us and start your journey!</Text>
+        <Text fontSize="$8" fontWeight="800" textAlign="center" color="$color">Coffee App</Text>
+        <Text fontSize="$6" fontWeight="700" textAlign="center" color="$color">Create your café profile</Text>
+        <Text textAlign="center" color="$colorAcyclic">Join Coffee App to earn rewards and skip the line.</Text>
         
         <Separator />
         

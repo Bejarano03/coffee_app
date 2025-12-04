@@ -68,11 +68,14 @@ export default function LoginScreen() {
         shadowColor="$shadowColor"
         shadowRadius={10}
       >
-        <H1 textAlign="center" color="$color">
-          Welcome Back
-        </H1>
+        <Text fontSize="$8" fontWeight="800" textAlign="center" color="$color">
+          Coffee App
+        </Text>
+        <Text fontSize="$6" fontWeight="700" textAlign="center" color="$color">
+          Welcome back
+        </Text>
         <Text textAlign="center" color="$colorAcyclic">
-          Please sign in to continue.
+          Sign in to keep your Coffee App orders flowing.
         </Text>
 
         <Separator />
