@@ -1,6 +1,8 @@
 import { Tabs, router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/haptic-tab';
 import HomeHeader from "@/components/home-header";
@@ -10,6 +12,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { ProfileAPI } from '@/api/client';
+import { AssistantOverlay } from '@/components/assistant/assistant-overlay';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -17,6 +20,8 @@ export default function TabLayout() {
   const { totalQuantity } = useCart();
   const { user, session } = useAuth();
   const [profileName, setProfileName] = useState<string | undefined>();
+  const [assistantVisible, setAssistantVisible] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     let isMounted = true;
@@ -51,13 +56,25 @@ export default function TabLayout() {
       router.push('/profile');
   };
 
+  const fabStyle = useMemo(
+    () => [
+      styles.fab,
+      {
+        backgroundColor: tintColor,
+        bottom: Math.max(insets.bottom, 16) + 72,
+      },
+    ],
+    [insets.bottom, tintColor],
+  );
+
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+    <>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+          headerShown: false,
+          tabBarButton: HapticTab,
+        }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -107,5 +124,32 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+      <TouchableOpacity
+        style={fabStyle}
+        activeOpacity={0.85}
+        onPress={() => setAssistantVisible(true)}
+        accessibilityLabel="Open Coffee Companion assistant"
+      >
+        <MaterialCommunityIcons name="robot-excited-outline" size={26} color="#fff" />
+      </TouchableOpacity>
+      <AssistantOverlay visible={assistantVisible} onClose={() => setAssistantVisible(false)} />
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
+  },
+});

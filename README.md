@@ -25,6 +25,16 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
+## Coffee Companion assistant
+
+Tap the floating robot bubble above the tab bar to launch the hover chat surface. It talks to the Nest backend's `/assistant/message` endpoint. To use it locally:
+
+1. Set `EXPO_PUBLIC_API_URL` so the Expo app can reach your backend.
+2. Ensure the backend has `OPENAI_API_KEY` (and optionally `OPENAI_ASSISTANT_MODEL`, `COFFEE_APP_SUPPORT_EMAIL`) configured.
+3. Grant location access in the Expo client so weather-aware recommendations can be generated.
+
+Conversations stay on-device per user session, and the assistant automatically inherits your JWT token, so no additional setup is required in the client.
+
 ## Get a fresh project
 
 When you're ready, run:

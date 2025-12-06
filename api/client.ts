@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosInstance } from 'axios';
 import { MenuCategory, MenuItem } from '@/types/menu';
+import type { AssistantHistoryMessage, AssistantResponsePayload, AssistantWeatherPayload } from '@/types/assistant';
 
 // ENV access url
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -304,6 +305,19 @@ export const RewardsAPI = {
     },
     refillGiftCard: async (amount: number, paymentIntentId: string): Promise<RewardSummary> => {
         const response = await API.post<RewardSummary>('/rewards/refill', { amount, paymentIntentId });
+        return response.data;
+    },
+};
+
+export interface AssistantMessagePayload {
+    message: string;
+    history?: AssistantHistoryMessage[];
+    weather?: AssistantWeatherPayload;
+}
+
+export const AssistantAPI = {
+    sendMessage: async (payload: AssistantMessagePayload): Promise<AssistantResponsePayload> => {
+        const response = await API.post<AssistantResponsePayload>('/assistant/message', payload);
         return response.data;
     },
 };
