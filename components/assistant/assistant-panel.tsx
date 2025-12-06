@@ -7,7 +7,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { AssistantAPI } from '@/api/client';
 import { useWeather } from '@/hooks/use-weather';
 import type { AssistantHistoryMessage, AssistantWeatherPayload, ChatMessage } from '@/types/assistant';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import {
+  useBrandColors,
+  getPrimaryButtonStyles,
+  getOutlineButtonStyles,
+  getSurfaceButtonStyles,
+} from '@/hooks/use-brand-colors';
 
 interface AssistantPanelProps {
   onClose: () => void;
@@ -51,8 +56,10 @@ const buildWeatherPayload = (weather: ReturnType<typeof useWeather>['weather']):
 
 export const AssistantPanel = ({ onClose }: AssistantPanelProps) => {
   const insets = useSafeAreaInsets();
-  const colorScheme = useColorScheme();
-  const iconColor = colorScheme === 'dark' ? '#F7FAFF' : '#101828';
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+  const outlineButtonStyles = getOutlineButtonStyles(brand);
+  const surfaceButtonStyles = getSurfaceButtonStyles(brand);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: createMessageId(),
@@ -161,9 +168,9 @@ export const AssistantPanel = ({ onClose }: AssistantPanelProps) => {
               <Button
                 key={suggestion}
                 size="$2"
-                variant="outlined"
                 onPress={() => handleSuggestionPress(suggestion)}
                 disabled={isSending}
+                {...surfaceButtonStyles}
               >
                 {suggestion}
               </Button>
@@ -173,7 +180,7 @@ export const AssistantPanel = ({ onClose }: AssistantPanelProps) => {
       ) : (
         <View style={{ height: 8 }} />
       ),
-    [handleSuggestionPress, isSending, suggestions],
+    [handleSuggestionPress, isSending, suggestions, surfaceButtonStyles],
   );
 
   return (
@@ -195,8 +202,8 @@ export const AssistantPanel = ({ onClose }: AssistantPanelProps) => {
           <Text fontSize={18} fontWeight="700">
             Coffee Companion
           </Text>
-          <Button size="$2" circular variant="outlined" onPress={onClose} accessibilityLabel="Close assistant">
-            <Ionicons name="close" size={18} color={iconColor} />
+          <Button size="$2" circular {...outlineButtonStyles} onPress={onClose} accessibilityLabel="Close assistant">
+            <Ionicons name="close" size={18} color={outlineButtonStyles.color} />
           </Button>
         </XStack>
 
@@ -208,20 +215,25 @@ export const AssistantPanel = ({ onClose }: AssistantPanelProps) => {
             <YStack marginBottom={12}>
               <Card
                 padding="$3"
-                backgroundColor={item.role === 'user' ? '$blue10' : '$backgroundStrong'}
+                backgroundColor={item.role === 'user' ? brand.accent : '$backgroundStrong'}
                 borderRadius="$6"
                 borderWidth={1}
-                borderColor={item.role === 'user' ? '$blue10' : '$borderColor'}
+                borderColor={item.role === 'user' ? brand.accent : '$borderColor'}
                 opacity={item.pending ? 0.6 : 1}
               >
-                <Text color={item.role === 'user' ? '#fff' : '$color'}>{item.content}</Text>
+                <Text color={item.role === 'user' ? brand.onAccent : '$color'}>{item.content}</Text>
                 {item.guardrail ? (
                   <Text color="$color" fontSize={12} marginTop={4} opacity={0.7}>
                     {item.guardrail}
                   </Text>
                 ) : null}
                 {item.pending ? (
-                  <Text color={item.role === 'user' ? '#fff' : '$color'} fontSize={12} marginTop={4} opacity={0.8}>
+                  <Text
+                    color={item.role === 'user' ? brand.onAccent : '$color'}
+                    fontSize={12}
+                    marginTop={4}
+                    opacity={0.8}
+                  >
                     Thinking…
                   </Text>
                 ) : null}
@@ -253,8 +265,9 @@ export const AssistantPanel = ({ onClose }: AssistantPanelProps) => {
             }}
             disabled={isSending || !input.trim()}
             width={100}
+            {...primaryButtonStyles}
           >
-            {isSending ? <ActivityIndicator color="#fff" /> : 'Send'}
+            {isSending ? <ActivityIndicator color={primaryButtonStyles.color} /> : 'Send'}
           </Button>
         </XStack>
       </YStack>

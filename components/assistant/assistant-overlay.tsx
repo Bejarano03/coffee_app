@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AssistantPanel } from './assistant-panel';
+import { useBrandColors } from '@/hooks/use-brand-colors';
 
 interface AssistantOverlayProps {
   visible: boolean;
@@ -11,6 +12,7 @@ interface AssistantOverlayProps {
 
 export const AssistantOverlay = ({ visible, onClose }: AssistantOverlayProps) => {
   const insets = useSafeAreaInsets();
+  const brand = useBrandColors();
   const handleBackdropPress = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -26,12 +28,23 @@ export const AssistantOverlay = ({ visible, onClose }: AssistantOverlayProps) =>
     [insets.bottom, insets.top],
   );
 
+  const sheetStyle = useMemo(
+    () => [
+      styles.sheet,
+      {
+        backgroundColor: brand.sheet,
+        shadowColor: brand.scheme === 'dark' ? '#000' : '#0B1427',
+      },
+    ],
+    [brand],
+  );
+
   return (
     <Modal visible={visible} animationType="fade" transparent statusBarTranslucent>
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: brand.overlay }]}>
         <Pressable style={styles.backdrop} onPress={handleBackdropPress} accessibilityRole="button" />
         <View style={wrapperStyle} pointerEvents="box-none">
-          <View style={styles.sheet}>
+          <View style={sheetStyle}>
             <AssistantPanel onClose={onClose} />
           </View>
         </View>
@@ -43,7 +56,6 @@ export const AssistantOverlay = ({ visible, onClose }: AssistantOverlayProps) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(5, 10, 24, 0.65)',
     justifyContent: 'flex-end',
   },
   backdrop: {

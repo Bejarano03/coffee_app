@@ -7,6 +7,12 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, RefreshControl, StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { AlertDialog, Button, Image, Input, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
+import {
+  getOutlineButtonStyles,
+  getPrimaryButtonStyles,
+  getSurfaceButtonStyles,
+  useBrandColors,
+} from "@/hooks/use-brand-colors";
 
 const milkLabels: Record<string, string> = {
   WHOLE: "Whole milk",
@@ -47,6 +53,10 @@ const Cart = () => {
     [giftCardBalance, isRewardsLoading]
   );
   const deficit = useMemo(() => Math.max(0, subtotal - (giftCardBalance ?? 0)), [subtotal, giftCardBalance]);
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+  const outlineButtonStyles = getOutlineButtonStyles(brand);
+  const surfaceButtonStyles = getSurfaceButtonStyles(brand);
   useEffect(() => {
     if (isRedeemingFreeDrink && (displayedFreeDrinks <= 0 || redeemableCartItems.length === 0)) {
       setIsRedeemingFreeDrink(false);
@@ -379,13 +389,13 @@ const Cart = () => {
               <Button
                 flex={1}
                 size="$3"
-                variant="outlined"
                 disabled={!hasItems || giftCardBalance === null || isPayingWithGiftCard}
                 onPress={() => void handlePayWithGiftCard()}
+                {...outlineButtonStyles}
               >
                 {isPayingWithGiftCard ? 'Charging…' : 'Pay with gift card'}
               </Button>
-              <Button size="$3" variant="outlined" onPress={() => setShowReloadDialog(true)}>
+              <Button size="$3" onPress={() => setShowReloadDialog(true)} {...surfaceButtonStyles}>
                 Reload
               </Button>
             </XStack>
@@ -418,9 +428,9 @@ const Cart = () => {
                   )}
                   <Button
                     size="$3"
-                    theme="active"
                     disabled={displayedFreeDrinks <= 0}
                     onPress={() => (isRedeemingFreeDrink ? setIsRedeemingFreeDrink(false) : handleStartRedeem())}
+                    {...surfaceButtonStyles}
                   >
                     {isRedeemingFreeDrink ? 'Select a drink' : 'Redeem free drink'}
                   </Button>
@@ -434,7 +444,12 @@ const Cart = () => {
             </YStack>
           </YStack>
 
-          <Button size="$4" onPress={() => void handleCheckout()} disabled={isCheckingOut || !hasItems}>
+          <Button
+            size="$4"
+            onPress={() => void handleCheckout()}
+            disabled={isCheckingOut || !hasItems}
+            {...primaryButtonStyles}
+          >
             {isCheckingOut ? 'Processing…' : subtotal <= 0 ? 'Place order (free)' : 'Pay with card'}
           </Button>
           </YStack>
@@ -446,7 +461,9 @@ const Cart = () => {
             <Text fontSize="$4" color="$color" opacity={0.75} textAlign="center">
               Add items from the menu tab to build your order.
             </Text>
-            <Button onPress={() => router.push("/(tabs)/menu")}>Browse menu</Button>
+            <Button onPress={() => router.push("/(tabs)/menu")} {...surfaceButtonStyles}>
+              Browse menu
+            </Button>
           </YStack>
         )}
       </ScrollView>
@@ -490,10 +507,10 @@ const Cart = () => {
                   </Button>
                 </AlertDialog.Cancel>
                 <Button
-                  theme="active"
                   onPress={() => void handleReloadGiftCard()}
                   disabled={isReloadingBalance}
                   loading={isReloadingBalance}
+                  {...primaryButtonStyles}
                 >
                   Reload with Stripe
                 </Button>

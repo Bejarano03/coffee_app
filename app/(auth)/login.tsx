@@ -4,8 +4,9 @@ import { JwtPayload } from "@/types/auth";
 import { LogIn, LogOut } from "@tamagui/lucide-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert } from "react-native";
-import { Button, H1, Input, Separator, Text, XStack, YStack } from "tamagui";
+import { Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { Button, Input, ScrollView, Separator, Text, XStack, YStack } from "tamagui";
+import { getOutlineButtonStyles, getPrimaryButtonStyles, getSurfaceButtonStyles, useBrandColors } from "@/hooks/use-brand-colors";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -51,96 +52,115 @@ export default function LoginScreen() {
     await signOut();
   };
 
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+  const outlineButtonStyles = getOutlineButtonStyles(brand);
+  const surfaceButtonStyles = getSurfaceButtonStyles(brand);
+
   return (
-    <YStack
-      flex={1}
-      justifyContent="center"
-      alignItems="center"
-      backgroundColor="$background"
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
     >
-      <YStack
-        width="85%"
-        maxWidth={400}
-        space="$4"
-        paddings="$6"
-        borderRadius="$8"
-        backgroundColor="$backgroundStrong"
-        shadowColor="$shadowColor"
-        shadowRadius={10}
+      <ScrollView
+        flex={1}
+        backgroundColor="$background"
+        contentContainerStyle={{ flexGrow: 1, paddingVertical: 32 }}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text fontSize="$8" fontWeight="800" textAlign="center" color="$color">
-          Coffee App
-        </Text>
-        <Text fontSize="$6" fontWeight="700" textAlign="center" color="$color">
-          Welcome back
-        </Text>
-        <Text textAlign="center" color="$colorAcyclic">
-          Sign in to keep your Coffee App orders flowing.
-        </Text>
-
-        <Separator />
-
-        <Input
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          size="$4"
-        />
-
-        <Input
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          size="$4"
-        />
-
-        <Button
-          variant="outlined"
-          size="$2"
-          onPress={() => router.push('/(auth)/forgot-password')}
+        <YStack
+          flex={1}
+          justifyContent="center"
+          alignItems="center"
+          backgroundColor="$background"
+          paddingHorizontal="$4"
         >
-          Forgot password?
-        </Button>
-
-        <Button
-          theme="active"
-          iconAfter={LogIn}
-          onPress={handleLogin}
-          disabled={loading}
-          loading={loading}
-          size="$5"
-          marginTop="$2"
-        >
-          {loading ? "Logging In..." : "Log In"}
-        </Button>
-
-        <XStack justifyContent="center" marginTop="$4" space="$2">
-          <Text color="$colorAcyclic">Don't have an account?</Text>
-          <Button
-            variant="outlined"
-            size="$2"
-            onPress={() => router.push("/signup")}
+          <YStack
+            width="100%"
+            maxWidth={420}
+            space="$4"
+            padding="$6"
+            borderRadius="$8"
+            backgroundColor="$backgroundStrong"
+            shadowColor="$shadowColor"
+            shadowRadius={10}
           >
-            Sign up
-          </Button>
-        </XStack>
+            <Text fontSize="$8" fontWeight="800" textAlign="center" color="$color">
+              Coffee App
+            </Text>
+            <Text fontSize="$6" fontWeight="700" textAlign="center" color="$color">
+              Welcome back
+            </Text>
+            <Text textAlign="center" color="$color9">
+              Sign in to keep your Coffee App orders flowing.
+            </Text>
 
-        {/* TEMPORARY: Sign Out Button for Testing */}
-        {session && (
-          <Button
-            theme="red"
-            iconAfter={LogOut}
-            onPress={handleSignOut}
-            size="$3"
-            marginTop="$4"
-          >
-            Force Sign Out (Testing)
-          </Button>
-        )}
-      </YStack>
-    </YStack>
+            <Separator />
+
+            <Input
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              size="$4"
+            />
+
+            <Input
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              size="$4"
+            />
+
+            <Button
+              size="$2"
+              onPress={() => router.push('/(auth)/forgot-password')}
+              {...surfaceButtonStyles}
+            >
+              Forgot password?
+            </Button>
+
+            <Button
+              iconAfter={LogIn}
+              onPress={handleLogin}
+              disabled={loading}
+              loading={loading}
+              size="$5"
+              marginTop="$2"
+              {...primaryButtonStyles}
+            >
+              {loading ? "Logging In..." : "Log In"}
+            </Button>
+
+            <XStack justifyContent="center" marginTop="$4" space="$2">
+              <Text color="$color9">Don&apos;t have an account?</Text>
+              <Button
+                size="$2"
+                onPress={() => router.push("/signup")}
+                {...outlineButtonStyles}
+              >
+                Sign up
+              </Button>
+            </XStack>
+
+            {/* TEMPORARY: Sign Out Button for Testing */}
+            {session && (
+              <Button
+                theme="red"
+                iconAfter={LogOut}
+                onPress={handleSignOut}
+                size="$3"
+                marginTop="$4"
+              >
+                Force Sign Out (Testing)
+              </Button>
+            )}
+          </YStack>
+        </YStack>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

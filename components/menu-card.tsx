@@ -1,6 +1,7 @@
 import { MenuItem } from "@/types/menu";
 import { getMenuImageSource } from "@/assets/menu";
 import { Button, Card, Image, ScrollView, Text, XStack, YStack } from "tamagui";
+import { getPrimaryButtonStyles, useBrandColors } from "@/hooks/use-brand-colors";
 
 type MenuCardProps = {
   item: MenuItem;
@@ -11,6 +12,8 @@ type MenuCardProps = {
 };
 
 const MenuCard = ({ item, quantity = 0, onActionPress, onCardPress, isCustomizable = true }: MenuCardProps) => {
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
   const isUnavailable = item.isAvailable === false;
   const hasQuantity = quantity > 0;
   const helperText = isCustomizable
@@ -29,7 +32,7 @@ const MenuCard = ({ item, quantity = 0, onActionPress, onCardPress, isCustomizab
       elevate
       bordered
       width="100%"
-      backgroundColor="$background"
+      backgroundColor="$backgroundStrong"
       pressStyle={{ scale: 0.99 }}
       opacity={isUnavailable ? 0.6 : 1}
       onPress={isUnavailable || !cardPressHandler ? undefined : cardPressHandler}
@@ -81,8 +84,10 @@ const MenuCard = ({ item, quantity = 0, onActionPress, onCardPress, isCustomizab
               onPress={onActionPress}
               disabled={isUnavailable}
               opacity={isUnavailable ? 0.7 : 1}
-              variant="outlined"
               flexShrink={0}
+              {...primaryButtonStyles}
+              backgroundColor={isUnavailable ? '$color4' : primaryButtonStyles.backgroundColor}
+              color={isUnavailable ? '$color' : primaryButtonStyles.color}
             >
               {buttonLabel}
             </Button>

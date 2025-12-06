@@ -1,5 +1,4 @@
 import React from "react";
-import { StyleSheet } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
 import { IconSymbol } from "./ui/icon-symbol";
 
@@ -32,5 +31,3 @@ const HomeHeader = ({ iconColor, onProfilePress, userName }: HomeHeaderProps) =>
 };
 
 export default HomeHeader;
-
-const styles = StyleSheet.create({});

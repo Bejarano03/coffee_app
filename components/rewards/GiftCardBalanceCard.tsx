@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Card, Text, XStack, YStack } from 'tamagui';
+import { getPrimaryButtonStyles, useBrandColors } from '@/hooks/use-brand-colors';
 
 type Props = {
   balance: number;
@@ -8,6 +9,9 @@ type Props = {
 };
 
 export const GiftCardBalanceCard = ({ balance, isProcessing, onPressReload }: Props) => {
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+
   return (
     <Card bordered elevate padding="$4" backgroundColor="$backgroundStrong">
       <YStack space="$3">
@@ -25,11 +29,11 @@ export const GiftCardBalanceCard = ({ balance, isProcessing, onPressReload }: Pr
           </YStack>
           <Button
             size="$3"
-            theme="active"
             onPress={onPressReload}
             disabled={isProcessing}
             loading={isProcessing}
             alignSelf="flex-start"
+            {...primaryButtonStyles}
           >
             Refill
           </Button>

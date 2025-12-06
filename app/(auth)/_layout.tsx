@@ -6,16 +6,14 @@ export default function AuthLaytout() {
       <Stack.Screen
         name="login"
         options={{
-          headerShown: true,
-          title: "Sign in",
-          headerBackVisible: false,
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="signup"
         options={{
           headerShown: true,
-          title: "Create Account",
+          title: "",
         }}
       />
       <Stack.Screen

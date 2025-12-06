@@ -17,6 +17,7 @@ import { GiftCardBalanceCard } from '@/components/rewards/GiftCardBalanceCard';
 import { RewardProgressCard } from '@/components/rewards/RewardProgressCard';
 import { TransactionsList } from '@/components/rewards/TransactionsList';
 import { useStripe } from '@stripe/stripe-react-native';
+import { getPrimaryButtonStyles, useBrandColors } from '@/hooks/use-brand-colors';
 
 const quickAmounts = [15, 25, 50, 100];
 
@@ -29,6 +30,9 @@ const Rewards = () => {
   const [showRefillDialog, setShowRefillDialog] = useState(false);
   const [feedback, setFeedback] = useState({ open: false, title: '', message: '' });
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
 
   const showFeedback = useCallback((title: string, message: string) => {
     setFeedback({ open: true, title, message });
@@ -208,10 +212,10 @@ const Rewards = () => {
                   </Button>
                 </AlertDialog.Cancel>
                 <Button
-                  theme="active"
                   onPress={handleReload}
                   disabled={isRefilling}
                   loading={isRefilling}
+                  {...primaryButtonStyles}
                 >
                   Pay with Stripe
                 </Button>

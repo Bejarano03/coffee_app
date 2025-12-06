@@ -1,6 +1,6 @@
 import { ArrowLeft, LogOut, Save } from '@tamagui/lucide-icons';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AlertDialog,
@@ -25,6 +25,7 @@ import {
   normalizeBirthDateFromServer,
   normalizePhoneNumber,
 } from '@/utils/formatters';
+import { getOutlineButtonStyles, getPrimaryButtonStyles, useBrandColors } from '@/hooks/use-brand-colors';
 
 export default function ProfileScreen() {
   const { signOut } = useAuth();
@@ -32,6 +33,9 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const topPadding = Math.max(insets.top, 24);
   const bottomPadding = Math.max(insets.bottom, 24);
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+  const outlineButtonStyles = getOutlineButtonStyles(brand);
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -228,6 +232,11 @@ export default function ProfileScreen() {
   }
 
   return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+    >
     <YStack flex={1} backgroundColor="$background" paddingTop={topPadding} paddingBottom={bottomPadding}>
       <XStack alignItems="center" paddingHorizontal="$4" marginBottom="$2">
         <Pressable
@@ -251,6 +260,7 @@ export default function ProfileScreen() {
         backgroundColor="$background"
         contentContainerStyle={{ paddingBottom: bottomPadding }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <YStack
           flex={1}
@@ -354,17 +364,25 @@ export default function ProfileScreen() {
             <XStack gap="$3" marginTop="$4">
               <Button
                 flex={1}
-                theme="active"
                 iconAfter={Save}
                 onPress={handleUpdate}
                 disabled={isSaving}
                 loading={isSaving}
                 size="$4"
+                {...primaryButtonStyles}
               >
                 {isSaving ? 'Saving...' : 'Save changes'}
               </Button>
 
-              <Button theme="red" iconAfter={LogOut} onPress={signOut} size="$4">
+              <Button
+                iconAfter={LogOut}
+                onPress={signOut}
+                size="$4"
+                backgroundColor="$red10"
+                color="$color1"
+                hoverStyle={{ backgroundColor: '$red9' }}
+                pressStyle={{ backgroundColor: '$red11' }}
+              >
                 Log out
               </Button>
             </XStack>
@@ -415,12 +433,12 @@ export default function ProfileScreen() {
             </YStack>
 
             <Button
-              theme="active"
               iconAfter={Save}
               onPress={handlePasswordUpdate}
               disabled={isUpdatingPassword}
               loading={isUpdatingPassword}
               size="$4"
+              {...primaryButtonStyles}
             >
               {isUpdatingPassword ? 'Updating...' : 'Update password'}
             </Button>
@@ -461,12 +479,15 @@ export default function ProfileScreen() {
 
             <XStack $sm={{ flexDirection: 'column' }} gap="$2" marginTop="$4">
               <AlertDialog.Cancel asChild>
-                <Button onPress={() => setShowAlert(false)}>Close</Button>
+                <Button onPress={() => setShowAlert(false)} {...outlineButtonStyles}>
+                  Close
+                </Button>
               </AlertDialog.Cancel>
             </XStack>
           </AlertDialog.Content>
         </AlertDialog.Portal>
       </AlertDialog>
     </YStack>
+    </KeyboardAvoidingView>
   );
 }

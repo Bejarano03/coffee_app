@@ -1,8 +1,9 @@
 import { UserPlus } from '@tamagui/lucide-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert } from 'react-native';
-import { Button, H1, Input, Separator, Text, XStack, YStack } from 'tamagui';
+import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Button, Input, ScrollView, Separator, Text, XStack, YStack } from 'tamagui';
+import { getOutlineButtonStyles, getPrimaryButtonStyles, useBrandColors } from '@/hooks/use-brand-colors';
 
 import { AuthAPI } from '@/api/client';
 import { useAuth } from '@/context/AuthContext';
@@ -82,11 +83,26 @@ export default function SignUpScreen() {
     }
   };
 
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+  const outlineButtonStyles = getOutlineButtonStyles(brand);
+
   return (
-    <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background">
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+    >
+      <ScrollView
+        flex={1}
+        backgroundColor="$background"
+        contentContainerStyle={{ flexGrow: 1, paddingVertical: 32 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <YStack flex={1} justifyContent="center" alignItems="center" backgroundColor="$background" paddingHorizontal="$4">
       <YStack 
-        width="85%" 
-        maxWidth={400} 
+        width="100%" 
+        maxWidth={420} 
         space="$3" 
         padding="$6" 
         borderRadius="$8" 
@@ -96,7 +112,7 @@ export default function SignUpScreen() {
       >
         <Text fontSize="$8" fontWeight="800" textAlign="center" color="$color">Coffee App</Text>
         <Text fontSize="$6" fontWeight="700" textAlign="center" color="$color">Create your café profile</Text>
-        <Text textAlign="center" color="$colorAcyclic">Join Coffee App to earn rewards and skip the line.</Text>
+        <Text textAlign="center" color="$color9">Join Coffee App to earn rewards and skip the line.</Text>
         
         <Separator />
         
@@ -166,29 +182,31 @@ export default function SignUpScreen() {
 
         {/* Sign Up Button */}
         <Button
-          theme="active"
           iconAfter={UserPlus}
           onPress={handleSignUp}
           disabled={loading}
           loading={loading}
           size="$5"
           marginTop="$2"
+          {...primaryButtonStyles}
         >
           {loading ? 'Registering...' : 'Sign Up'}
         </Button>
         
         <XStack justifyContent="center" marginTop="$4" space="$2">
-            <Text color="$colorAcyclic">Already have an account?</Text>
+            <Text color="$color9">Already have an account?</Text>
             {/* Navigates to the login screen */}
             <Button 
-                variant="outlined" 
                 size="$2" 
                 onPress={() => router.replace('/login')} 
+                {...outlineButtonStyles}
             >
                 Log In
             </Button>
         </XStack>
       </YStack>
-    </YStack>
+        </YStack>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

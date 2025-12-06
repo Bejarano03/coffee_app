@@ -7,6 +7,7 @@ import { router } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, BackHandler, RefreshControl, StyleSheet } from "react-native";
 import { Button, Input, ScrollView, Separator, Sheet, Text, XStack, YStack } from "tamagui";
+import { getOutlineButtonStyles, getPrimaryButtonStyles, getSurfaceButtonStyles, useBrandColors } from "@/hooks/use-brand-colors";
 
 const Menu = () => {
   const [category, setCategory] = useState<MenuCategory>(MENU_CATEGORIES[0].id);
@@ -39,6 +40,11 @@ const Menu = () => {
     ],
     []
   );
+
+  const brand = useBrandColors();
+  const primaryButtonStyles = getPrimaryButtonStyles(brand);
+  const outlineButtonStyles = getOutlineButtonStyles(brand);
+  const surfaceButtonStyles = getSurfaceButtonStyles(brand);
 
   const resetCustomization = useCallback(() => {
     setCustomization({ ...defaultCustomization });
@@ -237,7 +243,7 @@ const Menu = () => {
             </Text>
           </YStack>
 
-          <XStack gap="$2">
+          <XStack gap="$2" flexWrap="wrap">
             {MENU_CATEGORIES.map((menuCategory) => {
               const isActive = menuCategory.id === category;
               return (
@@ -245,7 +251,8 @@ const Menu = () => {
                   key={menuCategory.id}
                   borderRadius="$8"
                   size="$3"
-                  variant={isActive ? "solid" : "outlined"}
+                  {...(isActive ? surfaceButtonStyles : outlineButtonStyles)}
+                  color={isActive ? surfaceButtonStyles.color : outlineButtonStyles.color}
                   onPress={() => setCategory(menuCategory.id)}
                 >
                   {menuCategory.label}
@@ -266,8 +273,13 @@ const Menu = () => {
         </YStack>
 
         {totalQuantity > 0 && (
-          <Button marginTop="$4" size="$4" onPress={() => router.push("/(tabs)/cart")}>
-            <Text fontSize="$5" fontWeight="700" color="$color">
+          <Button
+            marginTop="$4"
+            size="$4"
+            onPress={() => router.push("/(tabs)/cart")}
+            {...primaryButtonStyles}
+          >
+            <Text fontSize="$5" fontWeight="700" color={primaryButtonStyles.color}>
               View cart · {totalQuantity} {totalQuantity === 1 ? "item" : "items"} · ${subtotal.toFixed(2)}
             </Text>
           </Button>
@@ -389,7 +401,12 @@ const Menu = () => {
               </XStack>
             </YStack>
 
-            <Button theme="active" size="$4" onPress={handleSubmit} disabled={isSubmitting || !selectedItem}>
+            <Button
+              size="$4"
+              onPress={handleSubmit}
+              disabled={isSubmitting || !selectedItem}
+              {...primaryButtonStyles}
+            >
               {isSubmitting ? "Adding..." : "Add to cart"}
             </Button>
           </YStack>

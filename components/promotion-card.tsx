@@ -1,5 +1,5 @@
 import React from "react";
-import { ImageSourcePropType, StyleSheet } from "react-native";
+import { ImageSourcePropType } from "react-native";
 import { Card, Image, SizeTokens, Text, XStack, YStack } from "tamagui";
 
 // Definitions expected by the component
@@ -23,15 +23,19 @@ export default function PromotionCard({
       size="$6"
       width="100%"
       marginBottom="$3"
-      backgroundColor="$backgroundLighter"
+      backgroundColor="$backgroundStrong"
       elevation="$3"
       pressStyle={{ scale: 0.98 }} // Fun press effect
     >
       <XStack padding="$5" alignItems="center" gap="$5">
         {/* Left side: Text title */}
         <YStack flex={1} space="$2">
-          <Text fontSize="$7" fontWeight="700" color="$color">{title}</Text>
-          <Text fontSize="$3" color="$color$8" numberOfLines={3}>{description}</Text>
+          <Text fontSize="$7" fontWeight="700" color="$color">
+            {title}
+          </Text>
+          <Text fontSize="$3" color="$color9" opacity={0.85} numberOfLines={3}>
+            {description}
+          </Text>
         </YStack>
 
         {/* Right size: image */} 
@@ -46,5 +50,3 @@ export default function PromotionCard({
     </Card>
   );
 }
-
-const styles = StyleSheet.create({});
